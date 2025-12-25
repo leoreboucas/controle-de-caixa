@@ -1,6 +1,7 @@
 // Carregando módulos
 const express = require('express')
-
+require('dotenv').config()
+require('./database/index')
 
 // Aplicação
 const app = express()
