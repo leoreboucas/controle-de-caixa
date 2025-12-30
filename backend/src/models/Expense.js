@@ -2,6 +2,12 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const ExpenseSchema = Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
+    },
     date: {
         type: Date, 
         default: Date.now(),
@@ -15,9 +21,9 @@ const ExpenseSchema = Schema({
     },
     dailyReportId: {
         type: Schema.Types.ObjectId,
-        ref: 'dailyreport',
+        ref: 'DailyReport',
         required: true
     }
 })
 
-module.exports = mongoose.model('expense', ExpenseSchema);
+module.exports = mongoose.model('Expense', ExpenseSchema);

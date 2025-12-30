@@ -14,7 +14,12 @@ const ProductSchema = new Schema({
     salePrice: {
         type: Number,
         required: true,
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 })
 
-module.exports = mongoose.model('product', ProductSchema)
+module.exports = mongoose.model('Product', ProductSchema)

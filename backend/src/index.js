@@ -8,16 +8,22 @@ const app = express()
 
 // Import das routes
 
+const product = require('./routes/productRoutes')
+const dailyReport = require('./routes/dailyReportRoutes')
+
 // Configurações
-    // Sessão
+    // Sessão 
 
     // Middlewares
 
     // Body Parser 
-
-    // Mongoose
+        app.use(express.json())
+        app.use(express.urlencoded({extended: true}))
 
 // Rotas
+
+app.use('/product', product)
+app.use('/daily-report', dailyReport)
 
 // Inicialização
 
