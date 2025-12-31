@@ -1,9 +1,13 @@
 const DailyReport = require('../models/DailyReport')
 const Expense = require('../models/Expense')
+const User = require('../models/User')
 
 const createCashRegisterService = async ({ user, ...data }) => {
     const { date, initialCash, finalCash, expensesData = [] } = data
-    const userId = user._id
+
+    const firebaseUid = user.uid
+    
+    const userId = (await User.findOne({ firebaseUid }))._id 
 
     // Validações básicas
 

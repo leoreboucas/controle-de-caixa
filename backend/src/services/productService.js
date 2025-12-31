@@ -1,8 +1,11 @@
 const Product = require('../models/Product')
+const User = require('../models/User')
 
 const createProductService = async({user, ...product})  => {
     const { name, purchasePrice, salePrice } = product
-    const userId = user._id
+    const firebaseUid = user.uid
+
+    const userId = (await User.findOne({ firebaseUid }))._id 
 
     if(salePrice < purchasePrice) {
         throw new Error('Valor de venda deve ser maior que o de compra.')

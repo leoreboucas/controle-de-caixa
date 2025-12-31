@@ -10,9 +10,10 @@ const createProductController = async (req, res) => {
     try {
             const data = createProductSchema.parse(req.body)
             const product = await createProductService({
-                ...req.body,
-                user: data
+                ...data,
+                user: req.user
             })
+
             res.status(201).json(product)
         } catch (error) {
             res.status(400).json({

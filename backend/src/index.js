@@ -10,6 +10,7 @@ const app = express()
 
 const product = require('./routes/productRoutes')
 const dailyReport = require('./routes/dailyReportRoutes')
+// const user = require('./routes/')
 
 // Configurações
     // Sessão 
@@ -22,7 +23,7 @@ const dailyReport = require('./routes/dailyReportRoutes')
 
 // Rotas
 
-app.use('/product', product)
+app.use('/products', product)
 app.use('/daily-report', dailyReport)
 
 // Inicialização

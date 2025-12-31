@@ -3,7 +3,7 @@ const User = require("../models/User")
 const createUserService = async ({ firebaseUid, name, email}) => {
 
     // Normalização de dados
-    name = name.trim();
+    name = name ? name.trim() : "Usuário Sem Nome";
     email = email.trim().toLowerCase();
 
     // Validações de negócio
@@ -23,7 +23,13 @@ const createUserService = async ({ firebaseUid, name, email}) => {
     return newUser
 }
 
+const getUserByEmailService = async (email) => {
+    email = email.trim().toLowerCase();
+    const user = await User.findOne({ email });
+    return user;
+}
 
 module.exports = {
-    createUserService
+    createUserService,
+    getUserByEmailService
 }
