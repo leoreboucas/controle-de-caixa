@@ -10,7 +10,9 @@ const app = express()
 
 const product = require('./routes/productRoutes')
 const dailyReport = require('./routes/dailyReportRoutes')
-// const user = require('./routes/')
+const DailyReport = require('./models/DailyReport')
+const authMiddleware = require('./middlewares/authMiddleware')
+const Product = require('./models/Product')
 
 // Configurações
     // Sessão 
@@ -23,6 +25,11 @@ const dailyReport = require('./routes/dailyReportRoutes')
 
 // Rotas
 
+app.get('/daily-report/get', authMiddleware, async (req, res) => {
+    const dailyregistered = await Product.find()
+    console.log(dailyregistered)
+    res.status(200).json({ message: 'Bem feito'})
+})
 app.use('/products', product)
 app.use('/daily-report', dailyReport)
 
