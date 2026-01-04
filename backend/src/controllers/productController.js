@@ -1,10 +1,13 @@
 const {
-    createProductService
+    createProductService,
+    updateProductService
 } = require('../services/productService')
 
 const {
-    createProductSchema
+    createProductSchema,
+    updateProductSchema
 } = require('../schemas/product.schema')
+const User = require('../models/User')
 
 const createProductController = async (req, res) => {
     try {
@@ -22,6 +25,25 @@ const createProductController = async (req, res) => {
         }
 }
 
+const updatedProductController = async (req, res) => {
+    try {
+        const productID = req.params.id
+        const data = updateProductSchema.parse(req.body)
+        const product = await updateProductService({
+            ...data,
+            productID,
+            user: req.user
+        })
+
+        res.status(201).json(product)
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
 module.exports = {
-    createProductController
+    createProductController,
+    updatedProductController
 }
