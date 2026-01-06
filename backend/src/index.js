@@ -8,11 +8,12 @@ const app = express()
 
 // Import das routes
 
+const user = require('./routes/userRoutes')
 const product = require('./routes/productRoutes')
 const dailyReport = require('./routes/dailyReportRoutes')
-const DailyReport = require('./models/DailyReport')
 const authMiddleware = require('./middlewares/authMiddleware')
 const Product = require('./models/Product')
+const DailyReport = require('./models/DailyReport')
 
 // Configurações
     // Sessão 
@@ -30,8 +31,10 @@ app.get('/daily-report/get', authMiddleware, async (req, res) => {
     console.log(dailyregistered)
     res.status(200).json({ message: 'Bem feito'})
 })
+app.use('/user', user)
 app.use('/products', product)
 app.use('/daily-report', dailyReport)
+
 
 // Inicialização
 

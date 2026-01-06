@@ -7,7 +7,7 @@ const createUserService = async ({ firebaseUid, name, email}) => {
     email = email.trim().toLowerCase();
 
     // Validações de negócio
-    const userExists = await User.findOne({ email })
+    const userExists = await User.findOne({ firebaseUid })
     if(userExists) {
         return userExists
     }
@@ -23,6 +23,20 @@ const createUserService = async ({ firebaseUid, name, email}) => {
     return newUser
 }
 
+const updateUserService = async ({ firebaseUid, name, email }) => {
+    const update = {};
+
+    if (name) update.name = name ? name.trim() : "Usuário Sem Nome";
+    if (email) update.email = email.trim().toLowerCase();
+
+    return User.findOneAndUpdate(
+        { firebaseUid },
+        update,
+        { new: true }
+    );
+};
+
+
 const getUserByEmailService = async (email) => {
     email = email.trim().toLowerCase();
     const user = await User.findOne({ email });
@@ -31,5 +45,6 @@ const getUserByEmailService = async (email) => {
 
 module.exports = {
     createUserService,
-    getUserByEmailService
+    updateUserService,
+    getUserByEmailService,
 }

@@ -158,7 +158,30 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
     return updatedDailyReport
 }
 
+const deleteCashRegisterService = async({dailyReportID, user}) =>  {
+    const firebaseUid = user.uid
+
+    const userId = (await User.findOne({ firebaseUid }))._id
+
+    const dailyReportExists = await DailyReport.findOne({ 
+        userId,
+        _id: dailyReportID
+     })
+
+    if(!dailyReportExists){
+        throw new Error('Caixa inexistente!')
+    }
+
+    const dailyReport = await DailyReport.findOneAndDelete({ 
+        userId,
+        _id: dailyReportID
+    })
+    
+    return dailyReport
+}
+
 module.exports = {
     createCashRegisterService,
-    updateCashRegisterService
+    updateCashRegisterService,
+    deleteCashRegisterService
 }

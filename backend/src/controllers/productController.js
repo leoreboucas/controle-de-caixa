@@ -1,13 +1,45 @@
 const {
     createProductService,
-    updateProductService
+    updateProductService,
+    deleteProductService,
+    getProductService,
+    getAllProductService
 } = require('../services/productService')
 
 const {
     createProductSchema,
     updateProductSchema
 } = require('../schemas/product.schema')
-const User = require('../models/User')
+
+const getProductController = async (req, res) => {
+    try {
+        const productID = req.params.id
+        const product = await getProductService({
+            productID,
+            user: req.user
+        })
+
+        res.status(200).json(product)
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+const getAllProductController = async (req, res) => {
+    try {
+        const product = await getAllProductService({
+            user: req.user
+        })
+
+        res.status(200).json(product)
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
 
 const createProductController = async (req, res) => {
     try {
@@ -43,7 +75,26 @@ const updatedProductController = async (req, res) => {
     }
 }
 
+const deleteProductController = async (req, res) => {
+    try {
+        const productID = req.params.id
+        const product = await deleteProductService({
+            productID,
+            user: req.user
+        })
+
+        res.status(200).json(product)
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
 module.exports = {
+    getProductController,
+    getAllProductController,
     createProductController,
-    updatedProductController
+    updatedProductController,
+    deleteProductController
 }
