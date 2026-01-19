@@ -4,6 +4,6 @@ const { updateUserController } = require('../controllers/userController');
 
 const Router = express.Router();
 
-Router.patch('/update', authMiddleware, updateUserController)
+Router.patch('/', authMiddleware, updateUserController)
 
 module.exports = Router

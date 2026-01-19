@@ -1,5 +1,35 @@
-const { createCashRegisterService, updateCashRegisterService, deleteCashRegisterService } = require('../services/dailyReportService')
+const { createCashRegisterService, updateCashRegisterService, deleteCashRegisterService, getCashRegisterService, getAllCashRegisterService } = require('../services/dailyReportService')
 const { createDailyReportSchema, updateDailyReportSchema } = require("../schemas/dailyReport.schema")
+
+const getDailyReportController = async (req, res) => {
+    try {
+        const dailyReportID = req.params.id
+        const dailyReport = await getCashRegisterService({
+            dailyReportID,
+            user: req.user
+        })
+
+        res.status(200).json(dailyReport)
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+const getAllDailyReportController = async (req, res) => {
+    try {
+        const dailyReport = await getAllCashRegisterService({
+            user: req.user
+        })
+
+        res.status(200).json(dailyReport)
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
 
 const createCashRegisterController = async (req, res) => {
     try {
@@ -52,6 +82,8 @@ const deleteDailyReportController = async (req, res) => {
 }
 
 module.exports = {
+    getDailyReportController,
+    getAllDailyReportController,
     createCashRegisterController,
     updatedDailyReportController,
     deleteDailyReportController

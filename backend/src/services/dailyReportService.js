@@ -2,6 +2,47 @@ const DailyReport = require('../models/DailyReport')
 const Expense = require('../models/Expense')
 const User = require('../models/User')
 
+const getCashRegisterService = async ({ dailyreportID, user } ) => {
+    const firebaseUid = user.uid
+
+    const userExists = await User.findOne({ firebaseUid })
+    if (!userExists) {
+        throw new Error('Usuário não encontrado.')
+    }
+
+    const userId = userExists._id
+
+    const dailyReport = await DailyReport.findOne({
+        userId,
+        _id: dailyreportID
+    })
+
+    if(!dailyReport) {
+        throw new Error('Caixa não existe!')
+    }
+
+    return dailyReport
+
+}
+
+const getAllCashRegisterService = async ({ user }) => {
+    const firebaseUid = user.uid
+
+    const userExists = await User.findOne({ firebaseUid })
+    if (!userExists) {
+        throw new Error('Usuário não encontrado.')
+    }
+
+    const userId = userExists._id
+
+    const dailyReport = await DailyReport.find({
+        userId
+    })
+    
+
+    return dailyReport
+}
+
 const createCashRegisterService = async ({ user, ...data }) => {
     const { date, initialCash, finalCash, expensesData = [] } = data
 
@@ -181,6 +222,8 @@ const deleteCashRegisterService = async({dailyReportID, user}) =>  {
 }
 
 module.exports = {
+    getCashRegisterService,
+    getAllCashRegisterService,
     createCashRegisterService,
     updateCashRegisterService,
     deleteCashRegisterService

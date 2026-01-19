@@ -2,6 +2,8 @@
 const express = require('express')
 require('dotenv').config()
 require('./database/index')
+const swaggerUi = require('swagger-ui-express')
+const swaggerSpec = require('./config/swagger')
 
 // Aplicação
 const app = express()
@@ -16,6 +18,9 @@ const Product = require('./models/Product')
 const DailyReport = require('./models/DailyReport')
 
 // Configurações
+    // Documentação com Swagger
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+    
     // Sessão 
 
     // Middlewares
