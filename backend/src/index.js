@@ -4,9 +4,17 @@ require('dotenv').config()
 require('./database/index')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSpec = require('./config/swagger')
+const cors = require('cors')
 
 // Aplicação
 const app = express()
+
+// Cors 
+var corsOptions = {
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions))
 
 // Import das routes
 
@@ -20,11 +28,10 @@ const dailyReport = require('./routes/dailyReportRoutes')
     
     // Sessão 
 
-    // Middlewares
-
     // Body Parser 
         app.use(express.json())
         app.use(express.urlencoded({extended: true}))
+
 
 // Rotas
 

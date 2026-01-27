@@ -83,15 +83,16 @@ const updateProductService = async({productID, user, ...product}) => {
     const userId = userExists._id
 
     if (salePrice <= purchasePrice) {
+        console.log('a')
         throw new Error('Valor de venda deve ser maior ou igual ao de compra.')
     }
-
+    
     const existingProduct = await Product.findOne({
         userId,
         name: new RegExp(`^${name}$`, 'i')
     })
 
-    if (existingProduct._id.toString() !== productID) {
+    if (existingProduct && existingProduct._id.toString() !== productID) {
         throw new Error('Já existe um produto com esse nome.')
     }
 
