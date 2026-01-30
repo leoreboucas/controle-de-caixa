@@ -3,13 +3,13 @@ const { createDailyReportSchema, updateDailyReportSchema } = require("../schemas
 
 const getDailyReportController = async (req, res) => {
     try {
-        const dailyReportID = req.params.id
-        const dailyReport = await getCashRegisterService({
-            dailyReportID,
+        const dailyreportID = req.params.id
+        const dailyreport = await getCashRegisterService({
+            dailyreportID,
             user: req.user
         })
 
-        res.status(200).json(dailyReport)
+        res.status(200).json(dailyreport)
     } catch (error) {
         res.status(400).json({
             message: error.message

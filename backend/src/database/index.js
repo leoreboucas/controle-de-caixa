@@ -8,4 +8,4 @@ mongoose.connect(URI).then(() => {
     console.error("Error detected: " + err)
 })
 
-module.exports = mongoose 
+module.exports = mongoose   

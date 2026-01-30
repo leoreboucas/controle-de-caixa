@@ -1,25 +1,3 @@
-import { useState } from "react";
-import React from 'react';
-
-// import { Container } from './styles';
-
-export const [filtteredMonth, setFiltteredMonth] = useState([])
-
-export const handleMonthSelected = (e) => {
-    const selectedMonth = e.target.value;
-
-    if (selectedMonth === "all") {
-        setFiltteredMonth(dailyReports);
-    } else {
-        setFiltteredMonth(
-            dailyReports.filter(
-                (report) =>
-                    new Date(report.date).getMonth() === Number(selectedMonth),
-            )
-        );
-    }
-};
-
 export const months = [
     "Janeiro",
     "Fevereiro",
@@ -32,16 +10,28 @@ export const months = [
     "Setembro",
     "Outubro",
     "Novembro",
-    "Dezembro"
+    "Dezembro",
 ];
 
-export const uniqueReports = Array.from(
-    new Map(
-        dailyReports.map((dailyReport) => {
-            const date = new Date(dailyReport.date);
-            const key = `${date.getMonth()}-${date.getFullYear()}`;
+export function groupReportsByMonth(reports) {
+    return Array.from(
+        new Map(
+            reports.map((report) => {
+                const date = new Date(report.date);
+                const key = `${date.getMonth()}-${date.getFullYear()}`;
+                return [key, report];
+            }),
+        ).values(),
+    );
+}
 
-            return [key, dailyReport];
-        }),
-    ).values(),
-);
+export function filterReportsByMonth(reports, selectedMonth) {
+    if (selectedMonth === "all") return reports;
+
+    return reports.filter((report) => {
+        const date = new Date(report.date);
+        return (
+            date.getMonth() === Number(selectedMonth)
+        );
+    });
+}

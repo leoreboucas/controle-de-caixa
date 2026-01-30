@@ -1,90 +1,132 @@
-import React, { useEffect, useState } from "react";
-import FormField from "../../components/FormField";
-import { inputBase } from "../../utils/inputbase";
-import { getIdToken } from "firebase/auth";
-import { getProducts } from "../../services/products";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../services/firebase";
-import { newDailyReport } from "../../services/dailyreport";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { inputBase } from '../../utils/inputbase';
+import { useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../services/firebase';
+import { useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { getIdToken } from 'firebase/auth';
+import { getProducts } from '../../services/products';
+import { getDailyReportById, updateDailyReport } from '../../services/dailyreport';
+import { getExpense } from '../../services/expenses';
+import FormField from '../../components/FormField';
 
-function CreateDailyReport() {
-  const [selectedProduct, setSelectedProduct] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [items, setItems] = useState([]);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
-  const [initialCash, setInitialCash] = useState(0);
-  const [finalCash, setFinalCash] = useState(0)
-  const [products, setProducts] = useState([])
-  const [user] = useAuthState(auth);
+// import { Container } from './styles';
 
-  const navigate = useNavigate()
+function EditDailyReport() {
+    const [selectedProduct, setSelectedProduct] = useState("");
+    const [quantity, setQuantity] = useState(1);
+    const [items, setItems] = useState([]);
+    const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+    const [initialCash, setInitialCash] = useState(0);
+    const [finalCash, setFinalCash] = useState(0);
+    const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-      const handleProducts = async () => {
-        if (!user) return;
-  
-        const token = await getIdToken(user);
-        const products = await getProducts(token);
-        setProducts(products.data);
-      };
-  
-      if (user) handleProducts();
-    }, [user]);
-  
+    const [user, loading] = useAuthState(auth);
+    const { id } = useParams();
 
-  const addItem = () => {
-    const product = products.find((p) => p._id === selectedProduct);
+    const navigate = useNavigate();
 
-    if (!product || quantity <= 0) return;
+    useEffect(() => {
+          const handleProducts = async () => {
+            if (!user) return;
+      
+            const token = await getIdToken(user);
+            const products = await getProducts(token);
+            setProducts(products.data);
+          };
+      
+          if (user) handleProducts();
+        }, [user]);
 
-    const total = product.purchasePrice * quantity;
-
-    setItems([
-      ...items,
-      {
-        id: Date.now(),
-        name: product.name,
-        quantity,
-        unitPrice: product.purchasePrice,
-        total,
-      },
-    ]);
-
-    setSelectedProduct("");
-    setQuantity(1);
-  };
-
-  const totalExpenses = items.reduce((acc, item) => acc + item.total, 0);
-
-  const handleSubmit = async () => {
-    const expensesData = []
-    const dailyReport = {
-      date,
-      initialCash,
-      finalCash,
-      expensesData: []
-    }
+    useEffect(() => {
+         if (!user || !id) return;
     
-    for(let i=0; i < items.length; i++){
-        expensesData.push({
-        description: items[i].name,
-        unitPrice: items[i].unitPrice,
-        amount: items[i].quantity * items[i].unitPrice
-      });
-    }
-    console.log(expensesData)
-    dailyReport.expensesData = expensesData
+         async function fetchDailyReportAndExpenses() {
+           const token = await getIdToken(user);
+           try {
+                const responseDR = await getDailyReportById(token, id);
+                const responseEX = await getExpense(token, id)
+                const mappedItems = responseEX.data.map((expense) => ({
+                  id: expense._id,
+                  name: expense.description,
+                  quantity: expense.amount / expense.unitPrice,
+                  unitPrice: expense.unitPrice,
+                  total: expense.amount,
+                }));
+                const date = new Date(responseDR.data.date);
 
-    const token = await getIdToken(user)
-    try {
-      await newDailyReport(token, dailyReport);
-          navigate("/daily-report");
-    } catch(error) {
-      alert(error.response?.data?.message)
+                const formatted = date.toISOString().split('T')[0];
+                setItems(mappedItems);
+                setDate(formatted);
+                setInitialCash(responseDR.data.initialCash);
+                setFinalCash(responseDR.data.finalCash);
+           } catch (error) {
+                return error.response?.data;
+           }
+         }
+    
+         fetchDailyReportAndExpenses();
+       }, [user, id]);
+
+
+    const addItem = () => {
+      const product = products.find((p) => p._id === selectedProduct);
+
+      if (!product || quantity <= 0) return;
+
+      const total = product.purchasePrice * quantity;
+
+      setItems([
+        ...items,
+        {
+          id: product._id,
+          name: product.name,
+          quantity,
+          unitPrice: product.purchasePrice,
+          total,
+        },
+      ]);
+
+      setSelectedProduct("");
+      setQuantity(1);
+    };
+
+    const deleteItem = (id) => {
+      console.log(id)
+      const filtteredItems = items.filter((expense) => expense.id != id);
+      setItems(filtteredItems)
+      
     }
 
-  }
+    const totalExpenses = items.reduce((acc, item) => acc + item.total, 0);
+    
+    const handleSubmit = async () => {
+        const dailyReport = {
+          date,
+          initialCash,
+          finalCash,
+          expensesData: []
+        }
+        
+        for(let i=0; i < items.length; i++){
+          dailyReport.expensesData.push({
+            description: items[i].name,
+            amount: items[i].quantity * items[i].unitPrice,
+            unitPrice: items[i].unitPrice
+          });
+        }
+    
+        const token = await getIdToken(user)
+        try {
+          await updateDailyReport(token, id, dailyReport);
+              navigate("/daily-report");
+        } catch(error) {
+          alert(error.response?.data?.message)
+        }
+    }    
+
+    if(loading) return ''
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-4xl space-y-6">
@@ -214,6 +256,14 @@ function CreateDailyReport() {
                         <td className="px-4 py-2 text-right">
                           R$ {item.total.toFixed(2)}
                         </td>
+                        <td className="px-4 py-2 text-right">
+                          <button
+                            onClick={() => deleteItem(item.id)}
+                            className="rounded-lg border border-red-200 bg-red-50 px-3 cursor-pointer py-1.5 text-sm font-medium text-red-700 hover:bg-red-100 transition"
+                          >
+                            Deletar
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -234,12 +284,12 @@ function CreateDailyReport() {
 
           {/* AÇÕES */}
           <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
-            <a
-              href="/daily-report"
+            <Link
+              to="/daily-report"
               className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition"
             >
               Cancelar
-            </a>
+            </Link>
 
             <button
               type="submit"
@@ -255,4 +305,4 @@ function CreateDailyReport() {
   );
 }
 
-export default CreateDailyReport;
+export default EditDailyReport;

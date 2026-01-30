@@ -83,7 +83,7 @@ const createCashRegisterService = async ({ user, ...data }) => {
         0
     )
 
-    const grossProfit = finalCash - initialCash
+    const grossProfit = (finalCash - initialCash) + totalExpense
 
     if (grossProfit < 0 && expensesData.length === 0) {
         throw new Error('Lucro negativo sem despesas registradas')

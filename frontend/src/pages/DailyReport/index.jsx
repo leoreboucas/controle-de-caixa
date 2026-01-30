@@ -2,10 +2,16 @@ import React, { useEffect, useState } from "react";
 import InfoItem from "../../components/InfoItem";
 import { Link } from "react-router-dom";
 import { getIdToken } from "firebase/auth";
-import { getDailyReport } from "../../services/dailyreport";
+import { deleteDailyReport, getDailyReport } from "../../services/dailyreport";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../services/firebase";
 import { inputBase } from "../../utils/inputbase";
+import { 
+  filterReportsByMonth,
+  groupReportsByMonth,
+  months
+} from '../../utils/monthSelected'
+
 
 
 function DailyReport() {
@@ -23,7 +29,7 @@ function DailyReport() {
           setDailyReports(dailyReport.data);
           setFiltteredMonth(dailyReport.data);
         } catch(error) {
-          console.log(error)
+          alert(error.response?.data?.message)
         }
       };
   
@@ -32,45 +38,32 @@ function DailyReport() {
     }, [user]);
 
   const handleMonthSelected = (e) => {
+    if (!dailyReports.length) return;
+
     const selectedMonth = e.target.value;
 
-    if (selectedMonth === "all") {
-      setFiltteredMonth(dailyReports);
-    } else {
-      setFiltteredMonth(
-        dailyReports.filter(
-          (report) =>
-            new Date(report.date).getMonth() === Number(selectedMonth),
-        )
-      );
+    setFiltteredMonth(filterReportsByMonth(dailyReports, selectedMonth));
+  };
+
+  const handleDelete = async (dailyReportId) => {
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir esse caixa?`,
+    );
+  
+    if (!confirmDelete) return;
+  
+    const token = await getIdToken(user);
+    try {
+      await deleteDailyReport(token, dailyReportId);
+      setFiltteredMonth(prev => 
+        prev.filter(dailyReport => dailyReport._id !== dailyReportId)
+      )
+    } catch (error) {
+      return error.response?.data?.message;
     }
   };
 
-  const months = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro"
-  ];
-
-  const uniqueReports = Array.from(
-    new Map(
-      dailyReports.map((dailyReport) => {
-        const date = new Date(dailyReport.date);
-        const key = `${date.getMonth()}-${date.getFullYear()}`;
-
-        return [key, dailyReport];
-      }),
-    ).values(),
-  );
+  const uniqueReports = groupReportsByMonth(dailyReports)
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
@@ -79,7 +72,7 @@ function DailyReport() {
         <section className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800">
-              Daily Report
+              Caixa Diário
             </h1>
             <p className="text-sm text-gray-500">
               Histórico diário de caixas registrados
@@ -88,7 +81,11 @@ function DailyReport() {
 
           {/* FILTRO MOCK */}
           <div className="rounded-lg border border-gray-200 bg-white text-sm text-gray-700">
-            <select className={inputBase} name="daily-report" onChange={handleMonthSelected}>
+            <select
+              className={inputBase}
+              name="daily-report"
+              onChange={handleMonthSelected}
+            >
               <option value="all">Todos os meses</option>
               {uniqueReports.map((dailyReport) => {
                 const date = new Date(dailyReport.date);
@@ -127,61 +124,79 @@ function DailyReport() {
           </div>
 
           {filtteredMonth.length > 0 ? (
-            filtteredMonth.map((dailyReport) => (
-              <div
-                key={dailyReport._id}
-                className="rounded-xl bg-white p-6 shadow-sm"
-              >
-                {/* TOPO DO CARD */}
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Caixa •{" "}
-                      {new Date(dailyReport.date).toLocaleDateString("pt-BR")}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      Registro diário do caixa
-                    </p>
+            filtteredMonth.map((dailyReport) => {
+              const date = new Date(dailyReport.date);
+
+              const formatted = date.toLocaleDateString("pt-BR", {
+                timeZone: "UTC",
+              });
+              return (
+                <div
+                  key={dailyReport._id}
+                  className="rounded-xl bg-white p-6 shadow-sm"
+                >
+                  {/* TOPO DO CARD */}
+                  <div className="mb-4 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-800">
+                        Caixa • {formatted}
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        Registro diário do caixa
+                      </p>
+                    </div>
+
+                    {/* AÇÕES */}
+                    <div className="flex gap-2">
+                      {/* EDITAR */}
+                      <Link
+                        to={`/daily-report/edit/${dailyReport._id}`}
+                        className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition"
+                      >
+                        Editar
+                      </Link>
+
+                      {/* EXCLUIR */}
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(dailyReport._id)}
+                        className="rounded-lg border border-red-200 bg-red-50 px-3 cursor-pointer py-1.5 text-sm font-medium text-red-700 hover:bg-red-100 transition"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <InfoItem
+                      label="Caixa Inicial"
+                      value={`R$ ${dailyReport.initialCash.toFixed(2).replace(".", ",")}`}
+                    />
+                    <InfoItem
+                      label="Caixa Final"
+                      value={`R$ ${dailyReport.finalCash.toFixed(2).replace(".", ",")}`}
+                    />
+                    <InfoItem
+                      label="Receita Bruta"
+                      value={`R$ ${dailyReport.grossProfit
+                        .toFixed(2)
+                        .replace(".", ",")}`}
+                    />
+                    <InfoItem
+                      label="Despesas"
+                      value={`R$ ${dailyReport.totalExpense.toFixed(2).replace(".", ",")}`}
+                    />
+                    <InfoItem
+                      label="Receita Líquida"
+                      value={`R$ ${dailyReport.netProfit
+                        .toFixed(2)
+                        .replace(".", ",")}`}
+                      highlight
+                    />
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                  <InfoItem
-                    label="Caixa Inicial"
-                    value={`R$ ${dailyReport.initialCash.toFixed(2).replace(".", ",")}`}
-                  />
-                  <InfoItem
-                    label="Caixa Final"
-                    value={`R$ ${dailyReport.finalCash.toFixed(2).replace(".", ",")}`}
-                  />
-                  <InfoItem
-                    label="Receita Bruta"
-                    value={`R$ ${(
-                      dailyReport.finalCash +
-                      dailyReport.initialCash +
-                      dailyReport.totalExpense
-                    )
-                      .toFixed(2)
-                      .replace(".", ",")}`}
-                  />
-                  <InfoItem
-                    label="Despesas"
-                    value={`R$ ${dailyReport.totalExpense.toFixed(2).replace(".", ",")}`}
-                  />
-                  <InfoItem
-                    label="Receita Líquida"
-                    value={`R$ ${(
-                      dailyReport.finalCash -
-                      dailyReport.initialCash -
-                      dailyReport.totalExpense
-                    )
-                      .toFixed(2)
-                      .replace(".", ",")}`}
-                    highlight
-                  />
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div>Vazio por enquanto</div>
           )}

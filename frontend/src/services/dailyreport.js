@@ -25,6 +25,7 @@ export const getDailyReportById = async (token, id) => {
             'Authorization': `Bearer ${token}`
         }
     })
+    
     return data
 }
 

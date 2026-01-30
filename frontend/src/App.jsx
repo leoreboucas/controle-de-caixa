@@ -13,6 +13,7 @@ import Container from "./components/Container"
 import Home from "./pages/Home";
 import NotFoundRedirect from "./routes/NotFoundRedirect";
 import EditProduct from "./pages/EditProduct";
+import EditDailyReport from "./pages/EditDailyReport";
 
 function App() {
   return (
@@ -72,6 +73,14 @@ function App() {
             element={
               <PrivateRoute>
                 <CreateDailyReport />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/daily-report/edit/:id"
+            element={
+              <PrivateRoute>
+                <EditDailyReport />
               </PrivateRoute>
             }
           />

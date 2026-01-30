@@ -9,6 +9,7 @@ const createDailyReportSchema = z.object({
     expensesData: z.array(
         z.object({
             description: z.string().trim().min(1, 'Descrição obrigatória'),
+            unitPrice: z.number().positive('Valor inválido'),
             amount: z.number().positive('Valor inválido')
         })
     ).optional()
@@ -23,6 +24,7 @@ const updateDailyReportSchema = z.object({
     expensesData: z.array(
         z.object({
             description: z.string().trim().min(1, 'Descrição obrigatória'),
+            unitPrice: z.number().positive('Valor inválido'),
             amount: z.number().positive('Valor inválido')
         })
     ).optional()
