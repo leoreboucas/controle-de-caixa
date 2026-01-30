@@ -21,6 +21,7 @@ app.use(cors(corsOptions))
 const user = require('./routes/userRoutes')
 const product = require('./routes/productRoutes')
 const dailyReport = require('./routes/dailyReportRoutes')
+const expense = require('./routes/expenseRoute')
 
 // Configurações
     // Documentação com Swagger
@@ -37,6 +38,7 @@ const dailyReport = require('./routes/dailyReportRoutes')
 
 app.use('/user', user)
 app.use('/products', product)
+app.use('/daily-report/expense', expense)
 app.use('/daily-report', dailyReport)
 
 
@@ -46,4 +48,4 @@ const PORT = process.env.PORT || PORT
 
 app.listen(PORT, () => {
     console.log("Server is running on port: " + PORT)
-})
+})  

@@ -19,6 +19,11 @@ const ExpenseSchema = Schema({
     amount: {
         type: Number,
     },
+    unitPrice: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     dailyReportId: {
         type: Schema.Types.ObjectId,
         ref: 'DailyReport',
