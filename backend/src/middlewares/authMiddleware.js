@@ -1,6 +1,7 @@
 // authMiddleware.js
 const admin = require('../auth/firebaseAdmin');
 const User = require('../models/User');
+const { createUserService } = require('../services/userService')
 
 const authMiddleware = async (req, res, next) => {
     try {
@@ -16,16 +17,14 @@ const authMiddleware = async (req, res, next) => {
 
         const decodedToken = await admin.auth().verifyIdToken(token);
 
-        const user = await User.findOne({ firebaseUid: decodedToken.uid });
-
+        let user = await User.findOne({ firebaseUid: decodedToken.uid });
         if (!user) {
-            await createUserService({
+            user = await createUserService({
                 firebaseUid: decodedToken.uid,
                 name: decodedToken.name || null,
                 email: decodedToken.email
             });
         }
-
         req.user = {
             id: user?._id,
             uid: decodedToken.uid,
@@ -35,6 +34,7 @@ const authMiddleware = async (req, res, next) => {
 
         next();
     } catch (err) {
+        console.log(err)
         return res.status(401).json({ message: 'Token inválido ou expirado' });
     }
 };

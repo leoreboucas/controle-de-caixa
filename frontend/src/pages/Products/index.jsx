@@ -99,14 +99,14 @@ const handleDelete = async (productId) => {
                 <div className="flex items-center gap-2">
                   <Link
                     to={`/products/edit/${product._id}`}
-                    className="rounded-md px-2.5 py-1.5 text-sm text-gray-500 hover:text-blue-700 hover:bg-blue-200 transition"
+                    className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition"
                   >
                     Editar
                   </Link>
 
                   <button
                     onClick={() => handleDelete(product._id)}
-                    className="rounded-md cursor-pointer px-2.5 py-1.5 text-sm text-gray-400 hover:text-red-600 hover:bg-red-200 transition"
+                    className="rounded-lg border border-red-200 bg-red-50 px-3 cursor-pointer py-1.5 text-sm font-medium text-red-700 hover:bg-red-100 transition"
                   >
                     Excluir
                   </button>
