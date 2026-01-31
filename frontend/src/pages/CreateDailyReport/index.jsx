@@ -72,7 +72,6 @@ function CreateDailyReport() {
   // Manipulador de envio do formulário
   const handleSubmit = async () => {
     const expensesData = []
-    console.log(date)
     const dailyReport = {
       date,
       initialCash,

@@ -96,7 +96,6 @@ function EditDailyReport() {
 
     // Deletar item
     const deleteItem = (id) => {
-      console.log(id)
       const filtteredItems = items.filter((expense) => expense.id != id);
       setItems(filtteredItems)
       
@@ -127,7 +126,6 @@ function EditDailyReport() {
               navigate("/daily-report");
   
         } catch(error) {
-          console.log(error.response)
           alert(error.response?.data?.message)
         }
     }    
