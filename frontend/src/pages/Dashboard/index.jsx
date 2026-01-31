@@ -1,12 +1,99 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashboardCard from "../../components/DashboardCard";
 import { Link } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../services/firebase";
+import { getIdToken } from "firebase/auth";
+import { getDailyReport } from "../../services/dailyreport";
+import { getProducts } from "../../services/products";
+import { filterReportsByMonth, groupReportsByMonth, months } from "../../utils/monthSelected";
+import { inputBase } from "../../utils/inputbase";
+
+// Função para ordenar os relatórios por data em ordem decrescente
+const sortByDateDesc = (reports) => {
+  return [...reports].sort((a, b) => new Date(b.date) - new Date(a.date));
+};
 
 function Dashboard() {
+  const [user] = useAuthState(auth);
+  const [dailyReports, setDailyReports] = useState([]);
+  const [filteredMonth, setFilteredMonth] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [netProfitTotal, setNetProfitTotal] = useState(0);
+  const [grossProfitTotal, setGrossProfitTotal] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0)
+  const [totalDailyReports, setTotalDailyReports] = useState(0) 
+
+  // Carregar relatórios diários do usuário autenticado
+  useEffect(() => {
+    const handleDailyReport = async () => {
+      if (!user) return;
+
+      const token = await getIdToken(user);
+      try {
+        const dailyReport = await getDailyReport(token);
+        const sortedReports = sortByDateDesc(dailyReport.data);
+
+        setDailyReports(sortedReports);
+        setFilteredMonth(sortedReports);
+      } catch (error) {
+        alert(error.response?.data?.message);
+      }
+    };
+
+    if (user) handleDailyReport();
+  }, [user]);
+
+  // Carregar produtos do usuário autenticado
+  useEffect(() => {
+    const handleProducts = async () => {
+      if (!user) return;
+
+      const token = await getIdToken(user);
+      const products = await getProducts(token);
+      setProducts(products.data);
+    };
+
+    if (user) handleProducts();
+  }, [user]);
+
+  // Calcular totais sempre que o mês filtrado mudar
+  useEffect(() => {
+    if(filteredMonth.length > 0){
+      setGrossProfitTotal(
+        filteredMonth
+          .reduce((sum, e) => sum + e.grossProfit, 0)
+          .toFixed(2)
+          .replace(".", ","),
+      );
+      setNetProfitTotal(
+        filteredMonth.reduce((sum, e) => sum + e.netProfit, 0).toFixed(2).replace('.', ','),
+      );
+      setTotalExpenses(
+        filteredMonth
+          .reduce((sum, e) => sum + e.totalExpense, 0)
+          .toFixed(2)
+          .replace(".", ","),
+      );
+      setTotalDailyReports(filteredMonth.length)
+    }
+  }, [filteredMonth])
+
+  // Manipulador de seleção de mês
+  const handleMonthSelected = (e) => {
+      if (!dailyReports.length) return;
+  
+      const selectedMonth = e.target.value;
+  
+      setFilteredMonth(filterReportsByMonth(dailyReports, selectedMonth));
+    };
+  
+  // Obter meses únicos para o seletor de meses
+  const uniqueReports = groupReportsByMonth(dailyReports)
+
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-7xl space-y-8">
-        {/* CABEÇALHO */}
         <section className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800">
@@ -17,23 +104,49 @@ function Dashboard() {
             </p>
           </div>
 
-          {/* SELETOR DE MÊS (mock) */}
-          <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700">
-            Setembro / 2025
-          </div>
+          {/* SELETOR DE MÊS  */}
+          {/* FILTRO*/}
+                    <div className="rounded-lg border border-gray-200 bg-white text-sm text-gray-700">
+                      <select
+                        className={inputBase}
+                        name="daily-report"
+                        onChange={handleMonthSelected}
+                      >
+                        <option value="all">Todos os meses</option>
+                        {uniqueReports.map((dailyReport) => {
+                          const date = new Date(dailyReport.date);
+                          const month = months[date.getMonth()];
+                          const year = date.getFullYear();
+          
+                          return (
+                            <option key={`${month}-${year}`} value={date.getMonth()}>
+                              {month}/{year}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
         </section>
 
         {/* RESUMO MENSAL */}
         <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          <DashboardCard title="Receita Bruta" value="R$ 28.400,00" />
-          <DashboardCard title="Despesas Totais" value="R$ 6.350,00" />
+          <DashboardCard
+            title="Receita Bruta"
+            value={`R$ ${grossProfitTotal}`}
+          />
+          <DashboardCard
+            title="Despesas Totais"
+            value={`R$ ${totalExpenses}`}
+          />
           <DashboardCard
             title="Receita Líquida"
-            value="R$ 22.050,00"
+            value={`R$ ${netProfitTotal}`}
             highlight
           />
-          <DashboardCard title="Média Diária" value="R$ 1.468,00" />
-          <DashboardCard title="Caixas Registrados" value="19" />
+          <DashboardCard
+            title="Caixas Registrados"
+            value={`${totalDailyReports}`}
+          />
         </section>
 
         {/* CONTEÚDO */}
@@ -54,25 +167,39 @@ function Dashboard() {
             </div>
 
             <div className="space-y-3">
-              {[1, 2, 3, 4].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      Caixa • 18/09/2025
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Receita líquida do dia
-                    </p>
-                  </div>
+              {/* LISTA DE CAIXAS */}
+              {dailyReports.length > 0 ? (
+                dailyReports.map((dailyReport) => (
+                  <div
+                    key={dailyReport._id}
+                    className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">
+                        Caixa •{" "}
+                        {new Date(dailyReport.date).toLocaleDateString(
+                          "pt-BR",
+                          {
+                            timeZone: "UTC",
+                          },
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Receita líquida do dia
+                      </p>
+                    </div>
 
-                  <span className="text-sm font-semibold text-green-600">
-                    R$ 1.120,00
-                  </span>
-                </div>
-              ))}
+                    <span className="text-sm font-semibold text-green-600">
+                      R${" "}
+                      {Number(dailyReport.netProfit)
+                        .toFixed(2)
+                        .replace(".", ",")}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p>Sem caixas registrados</p>
+              )}
             </div>
           </div>
 
@@ -83,15 +210,24 @@ function Dashboard() {
             </h2>
 
             <ul className="space-y-3">
-              {["Café", "Pão", "Refrigerante", "Bolo"].map((produto) => (
-                <li
-                  key={produto}
-                  className="flex justify-between text-sm text-gray-600"
-                >
-                  <span>{produto}</span>
-                  <span className="font-medium text-gray-800">R$ 10,00</span>
-                </li>
-              ))}
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <li
+                    key={product._id}
+                    className="flex justify-between text-sm text-gray-600"
+                  >
+                    <span>{product.name}</span>
+                    <span className="font-medium text-gray-800">
+                      R${" "}
+                      {Number(product.purchasePrice)
+                        .toFixed(2)
+                        .replace(".", ",")}
+                    </span>
+                  </li>
+                ))
+              ) : (
+                <p>Sem produtos cadastrados</p>
+              )}
             </ul>
           </div>
         </section>
