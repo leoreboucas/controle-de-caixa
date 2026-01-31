@@ -1,6 +1,7 @@
 const DailyReport = require('../models/DailyReport')
 const Expense = require('../models/Expense')
 const User = require('../models/User')
+const normalizeDateUTC = require('../helpers/normalizeDateUTC')
 
 const getCashRegisterService = async ({ dailyreportID, user } ) => {
     const firebaseUid = user.uid
@@ -52,24 +53,27 @@ const createCashRegisterService = async ({ user, ...data }) => {
 
     // Validações básicas
 
-    const today = new Date()
-    today.setHours(23, 59, 59, 999)
+    const inputDateUTC = date instanceof Date ? date : new Date(`${date}T00:00:00`);
 
-    if (new Date(date) > today) {
-        throw new Error('Não é permitido criar caixa para datas futuras')
+
+    const todayUTC = new Date();
+    todayUTC.setUTCHours(23, 59, 59, 999);
+
+    if (inputDateUTC > todayUTC) {
+        throw new Error('Não é permitido criar caixa para datas futuras');
     }
 
     // Verificar duplicidade
-    const start = new Date(date)
-    start.setHours(0, 0, 0, 0)
+    const start = new Date(inputDateUTC);
+    start.setUTCHours(0, 0, 0, 0);
 
-    const end = new Date(date)
-    end.setHours(23, 59, 59, 999)
+    const end = new Date(inputDateUTC);
+    end.setUTCHours(23, 59, 59, 999);
 
     const existingReport = await DailyReport.findOne({
         userId,
         date: { $gte: start, $lte: end }
-    })
+    });
 
     if (existingReport) {
 
@@ -94,14 +98,14 @@ const createCashRegisterService = async ({ user, ...data }) => {
     }
 
     const dailyReport = await DailyReport.create({
-        userId, 
-        date,
+        userId,
+        date: inputDateUTC,
         initialCash,
         finalCash,
         totalExpense,
         grossProfit,
         netProfit: grossProfit - totalExpense
-    })
+    });
 
     if (expensesData.length > 0) {
         await Expense.insertMany(
@@ -124,21 +128,27 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
     const userId = (await User.findOne({ firebaseUid }))._id
     
     // Validações básicas
+    const parsedDate = new Date(`${date}T00:00:00`);
 
-    const inputDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+        throw new Error("Data inválida");
+    }
 
-    const today = new Date();
-    today.setUTCHours(23, 59, 59, 999);
+    const inputDateUTC = normalizeDateUTC(parsedDate);
+    console.log(inputDateUTC)
 
-    if (inputDate > today) {
+    const todayUTC = new Date();
+    todayUTC.setUTCHours(23, 59, 59, 999);
+
+    if (inputDateUTC > todayUTC) {
         throw new Error('Não é permitido criar caixa para datas futuras');
     }
 
     // Verificação de duplicidade
-    const start = new Date(inputDate);
+    const start = new Date(inputDateUTC);
     start.setUTCHours(0, 0, 0, 0);
 
-    const end = new Date(inputDate);
+    const end = new Date(inputDateUTC);
     end.setUTCHours(23, 59, 59, 999);
 
     const existingReport = await DailyReport.findOne({
@@ -171,7 +181,7 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
             { _id: dailyReportID, userId },
             {
                 userId,
-                date,
+                date: inputDateUTC,
                 initialCash,
                 finalCash,
                 totalExpense,
