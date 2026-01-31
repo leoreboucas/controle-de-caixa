@@ -17,7 +17,7 @@ function EditDailyReport() {
     const [selectedProduct, setSelectedProduct] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [items, setItems] = useState([]);
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState('');
     const [initialCash, setInitialCash] = useState(0);
     const [finalCash, setFinalCash] = useState(0);
     const [products, setProducts] = useState([]);
@@ -57,11 +57,9 @@ function EditDailyReport() {
                   unitPrice: expense.unitPrice,
                   total: expense.amount,
                 }));
-                const date = new Date(responseDR.data.date);
-
-                const formatted = date.toISOString().split('T')[0];
+                
                 setItems(mappedItems);
-                setDate(formatted);
+                setDate(responseDR.data.date.slice(0, 10));
                 setInitialCash(responseDR.data.initialCash);
                 setFinalCash(responseDR.data.finalCash);
            } catch (error) {
@@ -127,7 +125,9 @@ function EditDailyReport() {
         try {
           await updateDailyReport(token, id, dailyReport);
               navigate("/daily-report");
+  
         } catch(error) {
+          console.log(error.response)
           alert(error.response?.data?.message)
         }
     }    

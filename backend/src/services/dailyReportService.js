@@ -128,14 +128,9 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
     const userId = (await User.findOne({ firebaseUid }))._id
     
     // Validações básicas
-    const parsedDate = new Date(`${date}T00:00:00`);
 
-    if (isNaN(parsedDate.getTime())) {
-        throw new Error("Data inválida");
-    }
+    const inputDateUTC = date instanceof Date ? date : new Date(`${date}T00:00:00`);
 
-    const inputDateUTC = normalizeDateUTC(parsedDate);
-    console.log(inputDateUTC)
 
     const todayUTC = new Date();
     todayUTC.setUTCHours(23, 59, 59, 999);
@@ -144,7 +139,7 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
         throw new Error('Não é permitido criar caixa para datas futuras');
     }
 
-    // Verificação de duplicidade
+    // Verificar duplicidade
     const start = new Date(inputDateUTC);
     start.setUTCHours(0, 0, 0, 0);
 
