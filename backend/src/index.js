@@ -10,11 +10,28 @@ const cors = require('cors')
 const app = express()
 
 // Cors 
-var corsOptions = {
-    origin: 'http://localhost:5173',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-app.use(cors(corsOptions))
+const cors = require("cors");
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://dailyreportflow.onrender.com",
+];
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // Import das routes
 
