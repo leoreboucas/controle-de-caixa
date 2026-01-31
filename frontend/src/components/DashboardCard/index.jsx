@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Container } from './styles';
-
+// Componente DashboardCard para exibir informações resumidas no dashboard
 function DashboardCard({ title, value, highlight }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">

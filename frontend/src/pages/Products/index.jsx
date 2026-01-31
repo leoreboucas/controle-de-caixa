@@ -10,6 +10,7 @@ function Products() {
   const [user] = useAuthState(auth);
   const [products, setProducts] = useState([]);
 
+  // Buscar produtos
   useEffect(() => {
     const handleProducts = async () => {
       if (!user) return;
@@ -22,6 +23,7 @@ function Products() {
     if (user) handleProducts();
   }, [user]);
 
+  // Deletar produto
 const handleDelete = async (productId) => {
   const confirmDelete = window.confirm(
     `Tem certeza que deseja excluir esse produto?`,
@@ -43,7 +45,6 @@ const handleDelete = async (productId) => {
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        {/* CABEÇALHO */}
         <section className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800">Produtos</h1>

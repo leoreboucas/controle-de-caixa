@@ -5,9 +5,7 @@ function Home() {
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-gray-50 flex items-center justify-center">
       <div className="w-full max-w-7xl px-6 py-16">
-        {/* Hero */}
         <section className="grid grid-cols-1 gap-12 md:grid-cols-2 items-center">
-          {/* Texto */}
           <div>
             <h1 className="text-3xl font-semibold text-gray-900 md:text-4xl">
               Controle financeiro simples, claro e eficiente
@@ -62,7 +60,6 @@ function Home() {
           </div>
         </section>
 
-        {/* Rodapé simples */}
         <footer className="mt-24 border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} • Sistema de Gestão Financeira
         </footer>

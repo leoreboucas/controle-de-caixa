@@ -12,13 +12,16 @@ import {
   months
 } from '../../utils/monthSelected'
 
-
+const sortByDateDesc = (reports) => {
+  return [...reports].sort((a, b) => new Date(b.date) - new Date(a.date));
+};
 
 function DailyReport() {
   const [user] = useAuthState(auth);
   const [dailyReports, setDailyReports] = useState([]);
-  const [filtteredMonth, setFiltteredMonth] = useState([]);
+  const [filteredMonth, setFilteredMonth] = useState([]);
 
+  // Carregar relatórios diários do usuário autenticado
   useEffect(() => {
       const handleDailyReport = async () => {
         if (!user) return;
@@ -26,8 +29,11 @@ function DailyReport() {
         const token = await getIdToken(user);
         try {
           const dailyReport = await getDailyReport(token);
-          setDailyReports(dailyReport.data);
-          setFiltteredMonth(dailyReport.data);
+          const sortedReports = sortByDateDesc(dailyReport.data);
+
+          setDailyReports(sortedReports);
+          setFilteredMonth(sortedReports);
+          
         } catch(error) {
           alert(error.response?.data?.message)
         }
@@ -37,14 +43,17 @@ function DailyReport() {
       if (user) handleDailyReport();
     }, [user]);
 
+    // Filtrar relatórios pelo mês selecionado
   const handleMonthSelected = (e) => {
     if (!dailyReports.length) return;
 
     const selectedMonth = e.target.value;
+    const filtered = filterReportsByMonth(dailyReports, selectedMonth);
 
-    setFiltteredMonth(filterReportsByMonth(dailyReports, selectedMonth));
+    setFilteredMonth(sortByDateDesc(filtered));
   };
 
+  // Função para excluir um relatório diário
   const handleDelete = async (dailyReportId) => {
     const confirmDelete = window.confirm(
       `Tem certeza que deseja excluir esse caixa?`,
@@ -55,7 +64,7 @@ function DailyReport() {
     const token = await getIdToken(user);
     try {
       await deleteDailyReport(token, dailyReportId);
-      setFiltteredMonth(prev => 
+      setFilteredMonth(prev => 
         prev.filter(dailyReport => dailyReport._id !== dailyReportId)
       )
     } catch (error) {
@@ -63,6 +72,7 @@ function DailyReport() {
     }
   };
 
+  // Obter meses únicos para o seletor de meses
   const uniqueReports = groupReportsByMonth(dailyReports)
 
   return (
@@ -79,7 +89,7 @@ function DailyReport() {
             </p>
           </div>
 
-          {/* FILTRO MOCK */}
+          {/* FILTRO */}
           <div className="rounded-lg border border-gray-200 bg-white text-sm text-gray-700">
             <select
               className={inputBase}
@@ -102,9 +112,8 @@ function DailyReport() {
           </div>
         </section>
 
-        {/* AÇÃO + LISTA (MESMO CONTEXTO VISUAL) */}
+        {/* AÇÃO + LISTA */}
         <section className="space-y-4">
-          {/* AÇÃO: NOVO REGISTRO */}
           <div className="rounded-xl bg-indigo-100 p-5 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-base font-semibold text-gray-800">
@@ -123,8 +132,9 @@ function DailyReport() {
             </Link>
           </div>
 
-          {filtteredMonth.length > 0 ? (
-            filtteredMonth.map((dailyReport) => {
+          {/* LISTA DE CAIXAS */}
+          {filteredMonth.length > 0 ? (
+            filteredMonth.map((dailyReport) => {
               const date = new Date(dailyReport.date);
 
               const formatted = date.toLocaleDateString("pt-BR", {
@@ -166,7 +176,7 @@ function DailyReport() {
                       </button>
                     </div>
                   </div>
-
+                  {/* INFORMAÇÕES DO CARD */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     <InfoItem
                       label="Caixa Inicial"
@@ -198,7 +208,7 @@ function DailyReport() {
               );
             })
           ) : (
-            <div>Vazio por enquanto</div>
+            <p className="text-center text-sm text-gray-500">Sem caixas registrados</p>
           )}
         </section>
       </div>

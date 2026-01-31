@@ -1,3 +1,6 @@
+// Utilitários para manipulação de relatórios por mês
+
+// Nomes dos meses em português
 export const months = [
     "Janeiro",
     "Fevereiro",
@@ -13,6 +16,7 @@ export const months = [
     "Dezembro",
 ];
 
+// Agrupa relatórios por mês e ano
 export function groupReportsByMonth(reports) {
     return Array.from(
         new Map(
@@ -25,6 +29,7 @@ export function groupReportsByMonth(reports) {
     );
 }
 
+// Filtra relatórios com base no mês selecionado
 export function filterReportsByMonth(reports, selectedMonth) {
     if (selectedMonth === "all") return reports;
 

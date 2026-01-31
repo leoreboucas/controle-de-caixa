@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Container } from './styles';
-
+// Componente ProductInfo para exibir informações do produto
 function ProductInfo({ label, value, highlight }) {
   return (
     <div>

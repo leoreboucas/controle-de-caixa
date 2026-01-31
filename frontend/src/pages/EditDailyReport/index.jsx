@@ -17,16 +17,18 @@ function EditDailyReport() {
     const [selectedProduct, setSelectedProduct] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [items, setItems] = useState([]);
-    const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+    const [date, setDate] = useState("");
     const [initialCash, setInitialCash] = useState(0);
     const [finalCash, setFinalCash] = useState(0);
     const [products, setProducts] = useState([]);
 
+    // Autenticação
     const [user, loading] = useAuthState(auth);
     const { id } = useParams();
 
     const navigate = useNavigate();
 
+    // Buscar produtos
     useEffect(() => {
           const handleProducts = async () => {
             if (!user) return;
@@ -39,6 +41,7 @@ function EditDailyReport() {
           if (user) handleProducts();
         }, [user]);
 
+    // Buscar daily report e despesas
     useEffect(() => {
          if (!user || !id) return;
     
@@ -70,6 +73,7 @@ function EditDailyReport() {
        }, [user, id]);
 
 
+    // Adicionar item
     const addItem = () => {
       const product = products.find((p) => p._id === selectedProduct);
 
@@ -92,6 +96,7 @@ function EditDailyReport() {
       setQuantity(1);
     };
 
+    // Deletar item
     const deleteItem = (id) => {
       console.log(id)
       const filtteredItems = items.filter((expense) => expense.id != id);
@@ -101,6 +106,7 @@ function EditDailyReport() {
 
     const totalExpenses = items.reduce((acc, item) => acc + item.total, 0);
     
+    // Submeter formulário para atualização
     const handleSubmit = async () => {
         const dailyReport = {
           date,
@@ -130,13 +136,12 @@ function EditDailyReport() {
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-4xl space-y-6">
-        {/* CABEÇALHO */}
         <section>
           <h1 className="text-2xl font-semibold text-gray-800">
-            Novo registro de caixa
+            Edição de caixa diário
           </h1>
           <p className="text-sm text-gray-500">
-            Registre os dados consolidados do caixa diário
+            Altere os dados consolidados do caixa diário
           </p>
         </section>
 

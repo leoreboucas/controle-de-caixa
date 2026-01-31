@@ -1,77 +1,45 @@
-# Controle de Caixa API
+## Controle de Caixa - Aplicação 
 
-API REST para controle de produtos, fluxo de caixa diário e despesas,  
-com autenticação via Firebase e arquitetura em camadas.
+Este repositório contém o sistema de controle de caixa dividido em duas partes: o frontend desenvolvido com React e o backend desenvolvido com Node.js e Express. O sistema permite gerenciar produtos, vendas e gerar relatórios financeiros.
 
----
+## Estrutura do Repositório
+- `backend/`: Contém o código-fonte do backend desenvolvido com Node.js e Express
+- `frontend/`: Contém o código-fonte do frontend desenvolvido com React.
 
-## 🔐 Autenticação (para testes)
-
-Este projeto utiliza **Firebase Authentication**.
-
-Para testar os endpoints protegidos via **Swagger**:
-
-1. Crie um usuário no **Firebase Authentication**
-2. Gere um **ID Token** (via frontend ou Firebase CLI)
-3. Acesse o Swagger
-4. Clique em **Authorize**
-5. Insira no campo:
-   Bearer <SEU_TOKEN_AQUI>
-
-## 🏗️ Arquitetura do Projeto
-
-O projeto segue uma **arquitetura em camadas**, separando responsabilidades:
-
-- **Controllers**: recebem e respondem requisições HTTP
-- **Services**: concentram regras de negócio
-- **Models**: schemas do MongoDB (Mongoose)
-- **Middlewares**: autenticação e autorização
-- **Schemas**: validação de dados com Zod
-
----
-
-## 🚀 Como rodar o projeto localmente
-
-### Passo a passo:
-
-1. Clone o repositório:
-```bash
-    git clone <url-do-repositorio>
-```
+## Instruções para Rodar o Projeto
+### Backend
+1. Navegue até o diretório do backend:
+      ```bash
+      cd controle-de-caixa/backend
+      ```
 2. Instale as dependências:
-```bash
-   npm install
-``` 
-3. Crie um arquivo .env com as variáveis necessárias
-4. Inicie o banco de dados Mongo
-5. Inicie o servidor:
-   npm run dev
+      ```bash
+      npm install
+      ```
+3. Inicie o servidor:
+      ```bash
+      npm run dev
+      ```
+4. O servidor estará rodando em `http://localhost:3000`.
 
-Arquivo .env com os dados necessários:
+### Frontend   
+1. Navegue até o diretório do frontend:
+      ```bash
+      cd controle-de-caixa/frontend
+      ```
+2. Instale as dependências:
+      ```bash
+      npm install
+      ```
 
-```env
-PORT=3000
-MONGO_URI=
+3. Inicie o servidor de desenvolvimento:
+      ```bash
+      npm run dev
+      ```
+4. Acesse a aplicação em `http://localhost:5173/`.
 
-FIREBASE_API_KEY=
-FIREBASE_AUTH_DOMAIN=
-FIREBASE_PROJECT_ID=
-FIREBASE_STORAGE_BUCKET=
-FIREBASE_MESSAGING_SENDER_ID=
-FIREBASE_APP_ID=
-FIREBASE_MEASUREMENT_ID=
-```
+## Documentação do Frontend
+Para mais detalhes sobre o frontend, consulte o arquivo [frontend/README.md](frontend/README.md).
 
-📄 Documentação da API
-
-A documentação da API está disponível em:
-
-http://localhost:3000/api-docs
-
-Por meio do Swagger é possível:
-
-Visualizar todas as rotas disponíveis
-
-Testar requisições autenticadas
-
-Analisar os schemas de entrada e saída
+## Documentação do Backend
+Para mais detalhes sobre o backend, consulte o arquivo [backend/README.md](backend/README.md).

@@ -12,10 +12,12 @@ function EditProduct() {
   const [costPrice, setCostPrice] = useState(0);
   const [salePrice, setSalePrice] = useState(0);
 
+  // Autenticação
   const [user, loading] = useAuthState(auth);
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // Buscar dados do produto
    useEffect(() => {
      if (!user || !id) return;
 
@@ -32,6 +34,7 @@ function EditProduct() {
    }, [user, id]);
 
 
+  // Atualizar produto
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,7 +66,6 @@ function EditProduct() {
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-3xl space-y-6">
-        {/* CABEÇALHO */}
         <section>
           <h1 className="text-2xl font-semibold text-gray-800">
             Editar produto

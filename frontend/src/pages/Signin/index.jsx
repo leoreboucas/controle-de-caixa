@@ -10,6 +10,7 @@ function Signin() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
+  // Criar conta com e-mail e senha
   const handleCreateAccount = async (e) => {
     e.preventDefault();
     setError("");
@@ -27,6 +28,8 @@ function Signin() {
     }
   };
 
+  // Criar conta com Google
+
   const handleGoogleSignUp = async () => {
     setError("");
 
@@ -41,7 +44,6 @@ function Signin() {
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-3xl space-y-6">
-        {/* CABEÇALHO */}
         <section>
           <h1 className="text-2xl font-semibold text-gray-800">
             Criar nova conta

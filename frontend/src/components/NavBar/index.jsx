@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Estilos para os links de navegação
 const linkNavStyle =
   "text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors";
 
+// Componente NavBar para navegação principal
 function NavBar( {user, handleLogout }) {
   return (
     <nav className="flex items-center gap-6">

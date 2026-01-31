@@ -1,6 +1,8 @@
 import axios from "axios";
 
+// Funções para interagir com a API de Products
 
+// Obter todos os produtos
 export const getProducts = async (token) => {
     const data = await axios.get("http://localhost:3000/products", {
         headers: {
@@ -10,6 +12,7 @@ export const getProducts = async (token) => {
     return data
 }
 
+// Criar novo produto
 export const newProduct = async (token, product) => {
     const data = await axios.post("http://localhost:3000/products", product, {
         headers: {
@@ -19,6 +22,7 @@ export const newProduct = async (token, product) => {
     return data
 }
 
+// Obter produto por ID
 export const getProductsById = async(token, id) => {
     const data = await axios.get(`http://localhost:3000/products/${id}`, {
         headers: {
@@ -28,6 +32,7 @@ export const getProductsById = async(token, id) => {
     return data
 }
 
+// Atualizar produto
 export const updateProduct = async(token, id, product) => {
     const data = await axios.patch(`http://localhost:3000/products/${id}`, product, {
         headers: {
@@ -37,6 +42,7 @@ export const updateProduct = async(token, id, product) => {
     return data
 }
 
+// Deletar produto
 export const deleteProduct = async(token, id) => {
     const data = await axios.delete(`http://localhost:3000/products/${id}`, {
         headers: {

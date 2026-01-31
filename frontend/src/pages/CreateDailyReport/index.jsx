@@ -8,11 +8,20 @@ import { auth } from "../../services/firebase";
 import { newDailyReport } from "../../services/dailyreport";
 import { useNavigate } from "react-router-dom";
 
+function todayISODate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function CreateDailyReport() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [items, setItems] = useState([]);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(todayISODate());
   const [initialCash, setInitialCash] = useState(0);
   const [finalCash, setFinalCash] = useState(0)
   const [products, setProducts] = useState([])
@@ -20,6 +29,7 @@ function CreateDailyReport() {
 
   const navigate = useNavigate()
 
+  // Carregar produtos do usuário autenticado
   useEffect(() => {
       const handleProducts = async () => {
         if (!user) return;
@@ -33,6 +43,7 @@ function CreateDailyReport() {
     }, [user]);
   
 
+  // Adicionar item à lista de despesas
   const addItem = () => {
     const product = products.find((p) => p._id === selectedProduct);
 
@@ -55,8 +66,10 @@ function CreateDailyReport() {
     setQuantity(1);
   };
 
+  // Calcular total de despesas
   const totalExpenses = items.reduce((acc, item) => acc + item.total, 0);
 
+  // Manipulador de envio do formulário
   const handleSubmit = async () => {
     const expensesData = []
     const dailyReport = {
@@ -66,6 +79,7 @@ function CreateDailyReport() {
       expensesData: []
     }
     
+    // Construir despesas detalhadas
     for(let i=0; i < items.length; i++){
         expensesData.push({
         description: items[i].name,
@@ -73,9 +87,8 @@ function CreateDailyReport() {
         amount: items[i].quantity * items[i].unitPrice
       });
     }
-    console.log(expensesData)
-    dailyReport.expensesData = expensesData
 
+    dailyReport.expensesData = expensesData
     const token = await getIdToken(user)
     try {
       await newDailyReport(token, dailyReport);
@@ -88,7 +101,6 @@ function CreateDailyReport() {
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-4xl space-y-6">
-        {/* CABEÇALHO */}
         <section>
           <h1 className="text-2xl font-semibold text-gray-800">
             Novo registro de caixa
@@ -107,6 +119,7 @@ function CreateDailyReport() {
               className={inputBase}
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              max={todayISODate()}
             />
           </FormField>
 

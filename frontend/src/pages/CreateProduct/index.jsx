@@ -16,6 +16,7 @@ function CreateProduct() {
 
   const navigate = useNavigate()
 
+  // Função para criar um novo produto
   const createNewProduct = async (e) => {
     e.preventDefault()
 
@@ -44,12 +45,12 @@ function CreateProduct() {
     }
   }
   
+  // Exibir nada enquanto o estado de autenticação está sendo carregado
   if(loading) return ''
   
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mx-auto max-w-3xl space-y-6">
-        {/* CABEÇALHO */}
         <section>
           <h1 className="text-2xl font-semibold text-gray-800">Novo produto</h1>
           <p className="text-sm text-gray-500">

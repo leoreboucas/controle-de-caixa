@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Container } from './styles';
-
+// Componente InfoItem para exibir um item de informação com rótulo e valor
 function InfoItem({ label, value, highlight }) {
   return (
     <div className="rounded-lg border border-gray-100 px-4 py-3">

@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Container } from './styles';
-
+// Componente FormField para campos de formulário com rótulo
 function FormField({ label, children }) {
   return (
     <div className="flex flex-col gap-1">

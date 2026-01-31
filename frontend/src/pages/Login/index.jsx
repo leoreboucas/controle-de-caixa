@@ -9,6 +9,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  // Login com e-mail e senha
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -21,6 +22,7 @@ function Login() {
     }
   };
 
+  // Login com Google
   const handleGoogleLogin = async () => {
     setError("");
 
@@ -35,7 +37,6 @@ function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
       <div className="w-full max-w-md space-y-6">
-        {/* CABEÇALHO */}
         <section className="text-center">
           <h1 className="text-2xl font-semibold text-gray-800">
             Acessar sistema

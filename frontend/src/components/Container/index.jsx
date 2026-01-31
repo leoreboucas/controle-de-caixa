@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Container } from './styles';
-
+// Componente Container para centralizar o conteúdo da página
 function Container({ children }) {
   return <div className="mx-auto w-full max-w-7xl px-4">{children}</div>;
 }

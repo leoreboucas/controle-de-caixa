@@ -1,14 +1,16 @@
 import React from "react";
 import { signOut } from "firebase/auth";
-import { auth } from "../../services/firebase"; // ajuste o path se necessário
+import { auth } from "../../services/firebase";
 import NavBar from "../NavBar";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 
+// Componente Header com logo e navegação
 function Header() {
   const navigate = useNavigate();
   const [user] = useAuthState(auth);
 
+  // Função de logout
   const handleLogout = async () => {
     try {
       await signOut(auth);

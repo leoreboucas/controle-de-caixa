@@ -1,7 +1,6 @@
 import React from 'react';
 
-// import { Container } from './styles';
-
+// Componente ResumeItem para exibir um item de resumo com rótulo e valor
 function ResumeItem({ label, value, highlight }) {
   return (
     <div className="flex justify-between rounded-lg border border-gray-100 px-4 py-3">
