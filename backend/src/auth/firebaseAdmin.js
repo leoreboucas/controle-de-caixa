@@ -6,8 +6,12 @@ let serviceAccount;
 if (process.env.NODE_ENV === "production") {
     // Render / produção
     serviceAccount = JSON.parse(
-        process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, "\n")
+        Buffer.from(
+            process.env.FIREBASE_SERVICE_ACCOUNT,
+            "base64"
+        ).toString("utf-8")
     );
+
 } else {
     // Local
     serviceAccount = JSON.parse(
