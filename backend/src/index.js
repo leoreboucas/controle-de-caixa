@@ -14,6 +14,7 @@ const app = express()
 const allowedOrigins = [
     "http://localhost:5173",
     "https://dailyreportflow.onrender.com",
+    "https://dailyreportflow.netlify.app"
 ];
 
 const corsOptions = {
