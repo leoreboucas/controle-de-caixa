@@ -3,4 +3,3 @@ node_modules
 .env.production
 private_key.json
 backend/src/getToken.js
-frontend/src/services/firebase.js
