@@ -17,166 +17,132 @@ const sortByDateDesc = (reports) => {
 };
 
 function DailyReport() {
-  const [user] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [dailyReports, setDailyReports] = useState([]);
   const [filteredMonth, setFilteredMonth] = useState([]);
 
-  // Carregar relatórios diários do usuário autenticado
   useEffect(() => {
-      const handleDailyReport = async () => {
-        if (!user) return;
-  
-        const token = await getIdToken(user);
-        try {
-          const dailyReport = await getDailyReport(token);
-          const sortedReports = sortByDateDesc(dailyReport.data);
+    const handleDailyReport = async () => {
+      if (!user) return;
 
-          setDailyReports(sortedReports);
-          setFilteredMonth(sortedReports);
-          
-        } catch(error) {
-          alert(error.response?.data?.message)
-        }
-      };
-  
-  
-      if (user) handleDailyReport();
-    }, [user]);
+      const token = await getIdToken(user);
+      const dailyReport = await getDailyReport(token);
+      const sorted = sortByDateDesc(dailyReport.data);
 
-    // Filtrar relatórios pelo mês selecionado
+      setDailyReports(sorted);
+      setFilteredMonth(sorted);
+    };
+
+    if (user) handleDailyReport();
+  }, [user]);
+
   const handleMonthSelected = (e) => {
-    if (!dailyReports.length) return;
-
-    const selectedMonth = e.target.value;
-    const filtered = filterReportsByMonth(dailyReports, selectedMonth);
-
+    const filtered = filterReportsByMonth(dailyReports, e.target.value);
     setFilteredMonth(sortByDateDesc(filtered));
   };
 
-  // Função para excluir um relatório diário
-  const handleDelete = async (dailyReportId) => {
-    const confirmDelete = window.confirm(
-      `Tem certeza que deseja excluir esse caixa?`,
-    );
-  
-    if (!confirmDelete) return;
-  
+  const handleDelete = async (id) => {
+    if (!window.confirm("Deseja excluir este caixa?")) return;
     const token = await getIdToken(user);
-    try {
-      await deleteDailyReport(token, dailyReportId);
-      setFilteredMonth(prev => 
-        prev.filter(dailyReport => dailyReport._id !== dailyReportId)
-      )
-    } catch (error) {
-      return error.response?.data?.message;
-    }
+    await deleteDailyReport(token, id);
+    setFilteredMonth((prev) => prev.filter((r) => r._id !== id));
   };
 
-  // Obter meses únicos para o seletor de meses
-  const uniqueReports = groupReportsByMonth(dailyReports)
+  const uniqueReports = groupReportsByMonth(dailyReports);
+
+  if(loading) return <p>Carregando...</p>;
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-6">
-      <div className="mx-auto max-w-7xl space-y-6">
-        {/* CABEÇALHO */}
-        <section className="flex items-center justify-between">
+    <main className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* HEADER */}
+        <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800">
               Caixa Diário
             </h1>
             <p className="text-sm text-gray-500">
-              Histórico diário de caixas registrados
+              Histórico de registros do caixa
             </p>
           </div>
 
           {/* FILTRO */}
-          <div className="rounded-lg border border-gray-200 bg-white text-sm text-gray-700">
-            <select
-              className={inputBase}
-              name="daily-report"
-              onChange={handleMonthSelected}
-            >
-              <option value="all">Todos os meses</option>
-              {uniqueReports.map((dailyReport) => {
-                const date = new Date(dailyReport.date);
-                const month = months[date.getMonth()];
-                const year = date.getFullYear();
-
-                return (
-                  <option key={`${month}-${year}`} value={date.getMonth()}>
-                    {month}/{year}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+          <select
+            onChange={handleMonthSelected}
+            className={`${inputBase} w-full sm:w-60`}
+          >
+            <option value="all">Todos os meses</option>
+            {uniqueReports.map((r) => {
+              const date = new Date(r.date);
+              return (
+                <option key={r._id} value={date.getMonth()}>
+                  {months[date.getMonth()]}/{date.getFullYear()}
+                </option>
+              );
+            })}
+          </select>
         </section>
 
-        {/* AÇÃO + LISTA */}
-        <section className="space-y-4">
-          <div className="rounded-xl bg-indigo-100 p-5 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-gray-800">
-                Novo registro de caixa
-              </h2>
-              <p className="text-sm text-gray-500">
-                Registre o caixa diário com valores consolidados
-              </p>
-            </div>
-
-            <Link
-              to="/daily-report/new"
-              className="inline-flex items-center justify-center rounded-lg border border-transparent bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 hover:border-indigo-400 transition-colors"
-            >
-              Registrar caixa
-            </Link>
+        {/* CTA */}
+        <section className="rounded-2xl bg-indigo-100 p-5 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-800">
+              Novo registro de caixa
+            </h2>
+            <p className="text-sm text-gray-600">
+              Registre os valores consolidados do dia
+            </p>
           </div>
 
-          {/* LISTA DE CAIXAS */}
-          {filteredMonth.length > 0 ? (
+          <Link
+            to="/daily-report/new"
+            className="inline-flex justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+          >
+            Registrar caixa
+          </Link>
+        </section>
+
+        {/* LISTA */}
+        <section className="space-y-5">
+          {filteredMonth.length ? (
             filteredMonth.map((dailyReport) => {
               const date = new Date(dailyReport.date);
-
               const formatted = date.toLocaleDateString("pt-BR", {
                 timeZone: "UTC",
               });
+
               return (
                 <div
                   key={dailyReport._id}
-                  className="rounded-xl bg-white p-6 shadow-sm"
+                  className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md"
                 >
-                  {/* TOPO DO CARD */}
-                  <div className="mb-4 flex items-center justify-between">
+                  {/* TOPO */}
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-lg font-semibold text-gray-800">
                         Caixa • {formatted}
                       </h2>
-                      <p className="text-sm text-gray-500">
-                        Registro diário do caixa
-                      </p>
+                      <p className="text-sm text-gray-500">Registro diário</p>
                     </div>
 
                     {/* AÇÕES */}
                     <div className="flex gap-2">
-                      {/* EDITAR */}
                       <Link
                         to={`/daily-report/edit/${dailyReport._id}`}
-                        className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition"
+                        className="rounded-lg bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
                       >
                         Editar
                       </Link>
-
-                      {/* EXCLUIR */}
                       <button
-                        type="button"
                         onClick={() => handleDelete(dailyReport._id)}
-                        className="rounded-lg border border-red-200 bg-red-50 px-3 cursor-pointer py-1.5 text-sm font-medium text-red-700 hover:bg-red-100 transition"
+                        className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
                       >
                         Excluir
                       </button>
                     </div>
                   </div>
-                  {/* INFORMAÇÕES DO CARD */}
+
+                  {/* INFO */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     <InfoItem
                       label="Caixa Inicial"
@@ -188,9 +154,7 @@ function DailyReport() {
                     />
                     <InfoItem
                       label="Receita Bruta"
-                      value={`R$ ${dailyReport.grossProfit
-                        .toFixed(2)
-                        .replace(".", ",")}`}
+                      value={`R$ ${dailyReport.grossProfit.toFixed(2).replace(".", ",")}`}
                     />
                     <InfoItem
                       label="Despesas"
@@ -198,9 +162,7 @@ function DailyReport() {
                     />
                     <InfoItem
                       label="Receita Líquida"
-                      value={`R$ ${dailyReport.netProfit
-                        .toFixed(2)
-                        .replace(".", ",")}`}
+                      value={`R$ ${dailyReport.netProfit.toFixed(2).replace(".", ",")}`}
                       highlight
                     />
                   </div>
@@ -208,12 +170,15 @@ function DailyReport() {
               );
             })
           ) : (
-            <p className="text-center text-sm text-gray-500">Sem caixas registrados</p>
+            <p className="text-center text-sm text-gray-500">
+              Nenhum caixa registrado
+            </p>
           )}
         </section>
       </div>
     </main>
   );
 }
+
 
 export default DailyReport;

@@ -6,45 +6,41 @@ import { auth } from "../../services/firebase";
 import { getIdToken } from "firebase/auth";
 import { getDailyReport } from "../../services/dailyreport";
 import { getProducts } from "../../services/products";
-import { filterReportsByMonth, groupReportsByMonth, months } from "../../utils/monthSelected";
+import {
+  filterReportsByMonth,
+  groupReportsByMonth,
+  months,
+} from "../../utils/monthSelected";
 import { inputBase } from "../../utils/inputbase";
 
-// Função para ordenar os relatórios por data em ordem decrescente
-const sortByDateDesc = (reports) => {
-  return [...reports].sort((a, b) => new Date(b.date) - new Date(a.date));
-};
+const sortByDateDesc = (reports) =>
+  [...reports].sort((a, b) => new Date(b.date) - new Date(a.date));
 
 function Dashboard() {
-  const [user] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [dailyReports, setDailyReports] = useState([]);
   const [filteredMonth, setFilteredMonth] = useState([]);
   const [products, setProducts] = useState([]);
   const [netProfitTotal, setNetProfitTotal] = useState(0);
   const [grossProfitTotal, setGrossProfitTotal] = useState(0);
-  const [totalExpenses, setTotalExpenses] = useState(0)
-  const [totalDailyReports, setTotalDailyReports] = useState(0) 
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalDailyReports, setTotalDailyReports] = useState(0);
 
-  // Carregar relatórios diários do usuário autenticado
   useEffect(() => {
     const handleDailyReport = async () => {
       if (!user) return;
 
       const token = await getIdToken(user);
-      try {
-        const dailyReport = await getDailyReport(token);
-        const sortedReports = sortByDateDesc(dailyReport.data);
+      const dailyReport = await getDailyReport(token);
+      const sorted = sortByDateDesc(dailyReport.data);
 
-        setDailyReports(sortedReports);
-        setFilteredMonth(sortedReports);
-      } catch (error) {
-        alert(error.response?.data?.message);
-      }
+      setDailyReports(sorted);
+      setFilteredMonth(sorted);
     };
 
     if (user) handleDailyReport();
   }, [user]);
 
-  // Carregar produtos do usuário autenticado
   useEffect(() => {
     const handleProducts = async () => {
       if (!user) return;
@@ -57,44 +53,47 @@ function Dashboard() {
     if (user) handleProducts();
   }, [user]);
 
-  // Calcular totais sempre que o mês filtrado mudar
   useEffect(() => {
-    if(filteredMonth.length > 0){
-      setGrossProfitTotal(
-        filteredMonth
-          .reduce((sum, e) => sum + e.grossProfit, 0)
-          .toFixed(2)
-          .replace(".", ","),
-      );
-      setNetProfitTotal(
-        filteredMonth.reduce((sum, e) => sum + e.netProfit, 0).toFixed(2).replace('.', ','),
-      );
-      setTotalExpenses(
-        filteredMonth
-          .reduce((sum, e) => sum + e.totalExpense, 0)
-          .toFixed(2)
-          .replace(".", ","),
-      );
-      setTotalDailyReports(filteredMonth.length)
-    }
-  }, [filteredMonth])
+    if (!filteredMonth.length) return;
 
-  // Manipulador de seleção de mês
+    setGrossProfitTotal(
+      filteredMonth
+        .reduce((sum, e) => sum + e.grossProfit, 0)
+        .toFixed(2)
+        .replace(".", ","),
+    );
+
+    setNetProfitTotal(
+      filteredMonth
+        .reduce((sum, e) => sum + e.netProfit, 0)
+        .toFixed(2)
+        .replace(".", ","),
+    );
+
+    setTotalExpenses(
+      filteredMonth
+        .reduce((sum, e) => sum + e.totalExpense, 0)
+        .toFixed(2)
+        .replace(".", ","),
+    );
+
+    setTotalDailyReports(filteredMonth.length);
+  }, [filteredMonth]);
+
   const handleMonthSelected = (e) => {
-      if (!dailyReports.length) return;
-  
-      const selectedMonth = e.target.value;
-  
-      setFilteredMonth(filterReportsByMonth(dailyReports, selectedMonth));
-    };
-  
-  // Obter meses únicos para o seletor de meses
-  const uniqueReports = groupReportsByMonth(dailyReports)
+    setFilteredMonth(filterReportsByMonth(dailyReports, e.target.value));
+  };
+
+  const uniqueReports = groupReportsByMonth(dailyReports);
+
+  if (loading)
+    return <p className="p-6 text-sm text-gray-500">Carregando...</p>;
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-6">
+    <main className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6">
       <div className="mx-auto max-w-7xl space-y-8">
-        <section className="flex items-center justify-between">
+        {/* HEADER */}
+        <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800">
               Relatório Mensal
@@ -104,31 +103,26 @@ function Dashboard() {
             </p>
           </div>
 
-          {/* SELETOR DE MÊS  */}
-          {/* FILTRO*/}
-                    <div className="rounded-lg border border-gray-200 bg-white text-sm text-gray-700">
-                      <select
-                        className={inputBase}
-                        name="daily-report"
-                        onChange={handleMonthSelected}
-                      >
-                        <option value="all">Todos os meses</option>
-                        {uniqueReports.map((dailyReport) => {
-                          const date = new Date(dailyReport.date);
-                          const month = months[date.getMonth()];
-                          const year = date.getFullYear();
-          
-                          return (
-                            <option key={`${month}-${year}`} value={date.getMonth()}>
-                              {month}/{year}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
+          {/* FILTRO */}
+          <div className="w-full sm:w-56">
+            <select
+              className={`${inputBase} bg-white transition focus:ring-2 focus:ring-indigo-500`}
+              onChange={handleMonthSelected}
+            >
+              <option value="all">Todos os meses</option>
+              {uniqueReports.map((dailyReport) => {
+                const date = new Date(dailyReport.date);
+                return (
+                  <option key={dailyReport._id} value={date.getMonth()}>
+                    {months[date.getMonth()]}/{date.getFullYear()}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
         </section>
 
-        {/* RESUMO MENSAL */}
+        {/* RESUMO */}
         <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           <DashboardCard
             title="Receita Bruta"
@@ -143,16 +137,13 @@ function Dashboard() {
             value={`R$ ${netProfitTotal}`}
             highlight
           />
-          <DashboardCard
-            title="Caixas Registrados"
-            value={`${totalDailyReports}`}
-          />
+          <DashboardCard title="Caixas Registrados" value={totalDailyReports} />
         </section>
 
         {/* CONTEÚDO */}
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* CAIXAS RECENTES */}
-          <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm">
+          {/* CAIXAS */}
+          <div className="lg:col-span-2 rounded-2xl bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-700">
                 Caixas Recentes
@@ -160,19 +151,18 @@ function Dashboard() {
 
               <Link
                 to="/daily-report/new"
-                className="text-sm font-medium text-indigo-600 hover:underline"
+                className="text-sm font-medium text-indigo-600 transition hover:underline"
               >
-                Registrar novo caixa
+                Novo caixa
               </Link>
             </div>
 
             <div className="space-y-3">
-              {/* LISTA DE CAIXAS */}
               {dailyReports.length > 0 ? (
                 dailyReports.map((dailyReport) => (
                   <div
                     key={dailyReport._id}
-                    className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 transition hover:bg-gray-50"
                   >
                     <div>
                       <p className="text-sm font-medium text-gray-700">
@@ -198,13 +188,13 @@ function Dashboard() {
                   </div>
                 ))
               ) : (
-                <p>Sem caixas registrados</p>
+                <p className="text-sm text-gray-500">Sem caixas registrados</p>
               )}
             </div>
           </div>
 
           {/* PRODUTOS */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-700">
               Produtos Cadastrados
             </h2>
@@ -226,7 +216,9 @@ function Dashboard() {
                   </li>
                 ))
               ) : (
-                <p>Sem produtos cadastrados</p>
+                <p className="text-sm text-gray-500">
+                  Sem produtos cadastrados
+                </p>
               )}
             </ul>
           </div>

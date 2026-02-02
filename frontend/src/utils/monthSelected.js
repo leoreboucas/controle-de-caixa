@@ -36,7 +36,7 @@ export function filterReportsByMonth(reports, selectedMonth) {
     return reports.filter((report) => {
         const date = new Date(report.date);
         return (
-            date.getMonth() === Number(selectedMonth)
+            date.getUTCMonth() === Number(selectedMonth)
         );
     });
 }

@@ -12,60 +12,64 @@ function EditProduct() {
   const [costPrice, setCostPrice] = useState(0);
   const [salePrice, setSalePrice] = useState(0);
 
-  // Autenticação
   const [user, loading] = useAuthState(auth);
   const { id } = useParams();
   const navigate = useNavigate();
 
   // Buscar dados do produto
-   useEffect(() => {
-     if (!user || !id) return;
+  useEffect(() => {
+    if (!user || !id) return;
 
-     async function fetchProduct() {
-       const token = await getIdToken(user);
-       const response = await getProductsById(token, id);
+    async function fetchProduct() {
+      const token = await getIdToken(user);
+      const response = await getProductsById(token, id);
 
-       setName(response.data.name);
-       setCostPrice(response.data.purchasePrice);
-       setSalePrice(response.data.salePrice);
-     }
+      setName(response.data.name);
+      setCostPrice(response.data.purchasePrice);
+      setSalePrice(response.data.salePrice);
+    }
 
-     fetchProduct();
-   }, [user, id]);
-
+    fetchProduct();
+  }, [user, id]);
 
   // Atualizar produto
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || salePrice === "" || costPrice === "") return;
+    if (!name || costPrice === "" || salePrice === "") return;
 
     if (Number(costPrice) > Number(salePrice)) {
       alert("O preço de custo não pode ser maior que o preço de venda");
       return;
     }
 
-    const token = await getIdToken(user);
-    
-    const product = {
-      name,
-      purchasePrice: Number(costPrice),
-      salePrice: Number(salePrice),
-    };
-    
     try {
-        await updateProduct(token, id, product);
-        navigate("/products");
-    } catch(error) {
-        console.log('lá')
-        alert(error.response?.data?.message) || "Erro ao atualizar produto"
+      const token = await getIdToken(user);
+      const product = {
+        name,
+        purchasePrice: Number(costPrice),
+        salePrice: Number(salePrice),
+      };
+
+      await updateProduct(token, id, product);
+      navigate("/products");
+    } catch (error) {
+      alert(error.response?.data?.message || "Erro ao atualizar produto");
     }
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-gray-500">
+        Carregando...
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6 animate-fade-in">
+        {/* TÍTULO */}
         <section>
           <h1 className="text-2xl font-semibold text-gray-800">
             Editar produto
@@ -76,7 +80,13 @@ function EditProduct() {
         </section>
 
         {/* FORMULÁRIO */}
-        <section className="rounded-xl bg-white p-6 shadow-sm">
+        <section
+          className="
+            rounded-xl bg-white p-6 shadow-sm
+            transition-all duration-300
+            hover:shadow-md hover:-translate-y-[1px]
+          "
+        >
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* NOME */}
             <FormField label="Nome do produto">
@@ -98,14 +108,11 @@ function EditProduct() {
                   className={inputBase}
                   value={costPrice === 0 ? "" : costPrice}
                   placeholder="0"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      setCostPrice(0);
-                      return;
-                    }
-                    setCostPrice(Number(value));
-                  }}
+                  onChange={(e) =>
+                    setCostPrice(
+                      e.target.value === "" ? 0 : Number(e.target.value),
+                    )
+                  }
                   required
                 />
               </FormField>
@@ -116,31 +123,36 @@ function EditProduct() {
                   className={inputBase}
                   value={salePrice === 0 ? "" : salePrice}
                   placeholder="0"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      setSalePrice(0);
-                      return;
-                    }
-                    setSalePrice(Number(value));
-                  }}
+                  onChange={(e) =>
+                    setSalePrice(
+                      e.target.value === "" ? 0 : Number(e.target.value),
+                    )
+                  }
                   required
                 />
               </FormField>
             </div>
 
             {/* AÇÕES */}
-            <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+            <div className="flex justify-end gap-3 border-t border-gray-200/70 pt-4">
               <Link
                 to="/products"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition"
+                className="
+                  rounded-lg px-4 py-2 text-sm font-medium text-gray-600
+                  transition hover:bg-gray-100
+                "
               >
                 Cancelar
               </Link>
 
               <button
                 type="submit"
-                className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition"
+                className="
+                  rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white
+                  transition-all duration-200
+                  hover:bg-indigo-700 hover:shadow-md
+                  active:scale-95
+                "
               >
                 Atualizar produto
               </button>

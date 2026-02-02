@@ -1,44 +1,60 @@
-import React from "react";
+import React, { useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../../services/firebase";
 import NavBar from "../NavBar";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Menu, X } from "lucide-react";
 
-// Componente Header com logo e navegação
 function Header() {
   const navigate = useNavigate();
   const [user] = useAuthState(auth);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Função de logout
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/");
-    } catch (error) {
-      console.error("Erro ao deslogar:", error);
-    }
+    await signOut(auth);
+    navigate("/");
+    setMenuOpen(false);
   };
 
   return (
-    <header className="h-16 border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <div>
-          {user ? (
-            <Link to="/dashboard" className="text-lg font-semibold text-indigo-600">
-              LOGO
-            </Link>
-          ) : (
-            <Link to="/" className="text-lg font-semibold text-indigo-600">
-              LOGO
-            </Link>
-          )}
+        <Link
+          to={user ? "/dashboard" : "/"}
+          className="text-lg font-semibold tracking-tight text-indigo-600"
+        >
+          LOGO
+        </Link>
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex">
+          <NavBar user={user} handleLogout={handleLogout} />
         </div>
 
-        {/* Navegação + Logout */}
-        <div className="flex items-center gap-6">
-          <NavBar user={user} handleLogout={handleLogout} />
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden rounded-lg p-2 text-gray-700 transition hover:bg-gray-100"
+        >
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${
+          menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="mx-4 mb-4 rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <NavBar
+            user={user}
+            handleLogout={handleLogout}
+            mobile
+            closeMenu={() => setMenuOpen(false)}
+          />
         </div>
       </div>
     </header>

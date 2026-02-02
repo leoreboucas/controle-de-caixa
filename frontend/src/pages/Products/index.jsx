@@ -7,7 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../services/firebase";
 
 function Products() {
-  const [user] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [products, setProducts] = useState([]);
 
   // Buscar produtos
@@ -41,6 +41,9 @@ const handleDelete = async (productId) => {
     return error.response?.data?.message;
   }
 };
+
+  // Exibir carregamento enquanto o estado de autenticação está sendo verificado
+  if (loading) return <p>Carregando...</p>;
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-6">

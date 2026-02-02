@@ -6,7 +6,6 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // Obter todos os produtos
 export const getProducts = async (token) => {
-    console.log("API_URL:", API_URL);
     const data = await axios.get(`${API_URL}/products`, {
         headers: {
             'Authorization': `Bearer ${token}`

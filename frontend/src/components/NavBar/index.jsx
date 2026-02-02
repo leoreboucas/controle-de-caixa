@@ -1,46 +1,75 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
-// Estilos para os links de navegação
-const linkNavStyle =
-  "text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors";
+const baseLink =
+  "text-sm font-medium text-gray-600 transition-colors hover:text-indigo-600";
 
-// Componente NavBar para navegação principal
-function NavBar( {user, handleLogout }) {
+function NavBar({ user, handleLogout, mobile = false, closeMenu }) {
+  const layout = mobile
+    ? "flex flex-col divide-y divide-gray-100"
+    : "flex items-center gap-6";
+
+  const itemStyle = mobile ? "px-5 py-4 hover:bg-gray-50" : "";
+
+  const handleClick = () => {
+    if (mobile && closeMenu) closeMenu();
+  };
+
   return (
-    <nav className="flex items-center gap-6">
-  
-
+    <nav className={layout}>
       {user ? (
-            <>
-                <Link to="/daily-report" className={linkNavStyle}>
-                  Registro de Caixa
-                </Link>
-              
-              <Link to="/products" className={linkNavStyle}>
-                Produtos
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-              >
-                Sair
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className={linkNavStyle}>
-                      Login
-                    </Link>
-              
-                    <Link
-                      to="/signin"
-                      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-                    >
-                      Criar Conta
-                    </Link>
-            </>
-            )}
+        <>
+          <Link
+            to="/daily-report"
+            onClick={handleClick}
+            className={`${baseLink} ${itemStyle}`}
+          >
+            Registro de Caixa
+          </Link>
+
+          <Link
+            to="/products"
+            onClick={handleClick}
+            className={`${baseLink} ${itemStyle}`}
+          >
+            Produtos
+          </Link>
+
+          <button
+            onClick={() => {
+              handleLogout();
+              handleClick();
+            }}
+            className={`${
+              mobile
+                ? "px-5 py-4 text-left text-red-600 hover:bg-red-50"
+                : "rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100"
+            } text-sm font-medium transition`}
+          >
+            Sair
+          </button>
+        </>
+      ) : (
+        <>
+          <Link
+            to="/login"
+            onClick={handleClick}
+            className={`${baseLink} ${itemStyle}`}
+          >
+            Login
+          </Link>
+
+          <div className={mobile ? "px-5 py-4" : ""}>
+            <Link
+              to="/signin"
+              onClick={handleClick}
+              className="block rounded-lg bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-indigo-700"
+            >
+              Criar Conta
+            </Link>
+          </div>
+        </>
+      )}
     </nav>
   );
 }

@@ -8,59 +8,58 @@ import { newProduct } from "../../services/products";
 import { Link, useNavigate } from "react-router-dom";
 
 function CreateProduct() {
-  const [name, setName] = useState('')
+  const [name, setName] = useState("");
   const [costPrice, setCostPrice] = useState(0);
   const [salePrice, setSalePrice] = useState(0);
 
   const [user, loading] = useAuthState(auth);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
-
-  // Função para criar um novo produto
   const createNewProduct = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (Number(costPrice) > Number(salePrice)) {
       alert("O preço de custo não pode ser maior que o preço de venda");
       return;
     }
 
-     if (!name || !costPrice || !salePrice) {
-       alert("Preencha todos os campos");
-       return;
-     }
-    
+    if (!name || !costPrice || !salePrice) {
+      alert("Preencha todos os campos");
+      return;
+    }
 
     const token = await getIdToken(user);
     const product = {
-      name: name,
+      name,
       purchasePrice: costPrice,
-      salePrice: salePrice,
+      salePrice,
     };
+
     try {
-      await newProduct(token, product)
-      navigate('/products')
-    } catch(error) {
-      alert(error.response?.data?.message)
+      await newProduct(token, product);
+      navigate("/products");
+    } catch (error) {
+      alert(error.response?.data?.message);
     }
-  }
-  
-  // Exibir nada enquanto o estado de autenticação está sendo carregado
-  if(loading) return ''
-  
+  };
+
+  if (loading)
+    return <p className="p-6 text-sm text-gray-500">Carregando...</p>;
+
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-6">
+    <main className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6">
       <div className="mx-auto max-w-3xl space-y-6">
-        <section>
+        {/* HEADER */}
+        <section className="space-y-1">
           <h1 className="text-2xl font-semibold text-gray-800">Novo produto</h1>
           <p className="text-sm text-gray-500">
             Cadastre os produtos utilizados no caixa
           </p>
         </section>
 
-        {/* FORMULÁRIO */}
-        <section className="rounded-xl bg-white p-6 shadow-sm">
-          <form className="space-y-6">
+        {/* CARD */}
+        <section className="rounded-2xl bg-white p-6 shadow-sm transition-all">
+          <form className="space-y-6" onSubmit={createNewProduct}>
             {/* NOME */}
             <FormField label="Nome do produto">
               <input
@@ -68,7 +67,7 @@ function CreateProduct() {
                 placeholder="Ex: Refrigerante lata 350ml"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={inputBase}
+                className={`${inputBase} transition focus:ring-2 focus:ring-indigo-500`}
                 required
               />
             </FormField>
@@ -78,17 +77,10 @@ function CreateProduct() {
               <FormField label="Preço de custo">
                 <input
                   type="number"
-                  className={inputBase}
+                  className={`${inputBase} transition focus:ring-2 focus:ring-indigo-500`}
                   value={costPrice === 0 ? "" : costPrice}
                   placeholder="0"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      setCostPrice(0);
-                      return;
-                    }
-                    setCostPrice(Number(value));
-                  }}
+                  onChange={(e) => setCostPrice(Number(e.target.value) || 0)}
                   required
                 />
               </FormField>
@@ -96,35 +88,27 @@ function CreateProduct() {
               <FormField label="Preço de venda">
                 <input
                   type="number"
-                  className={inputBase}
+                  className={`${inputBase} transition focus:ring-2 focus:ring-indigo-500`}
                   value={salePrice === 0 ? "" : salePrice}
                   placeholder="0"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      setSalePrice(0);
-                      return;
-                    }
-                    setSalePrice(Number(value));
-                  }}
+                  onChange={(e) => setSalePrice(Number(e.target.value) || 0)}
                   required
                 />
               </FormField>
             </div>
 
             {/* AÇÕES */}
-            <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+            <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end">
               <Link
                 to="/products"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition"
+                className="rounded-lg px-4 py-2 text-center text-sm font-medium text-gray-600 transition hover:bg-gray-100"
               >
                 Cancelar
               </Link>
 
               <button
                 type="submit"
-                className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition"
-                onClick={e => createNewProduct(e)}
+                className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-[0.98]"
               >
                 Salvar produto
               </button>
