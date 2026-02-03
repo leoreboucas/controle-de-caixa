@@ -23,9 +23,9 @@ function Header() {
         {/* Logo */}
         <Link
           to={user ? "/dashboard" : "/"}
-          className="text-lg font-semibold tracking-tight text-indigo-600"
+          className="flex items-center"
         >
-          LOGO
+          <img src="/favicon.jpg" alt="Logo" className="h-12 w-30" />
         </Link>
 
         {/* Desktop Nav */}
