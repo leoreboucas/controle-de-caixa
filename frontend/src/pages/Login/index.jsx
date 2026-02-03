@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../services/firebase";
 import FormField from "../../components/FormField";
 import { inputBase } from "../../utils/inputbase";
+import PasswordInput from "../../components/PasswordInput";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -59,12 +60,7 @@ function Login() {
             </FormField>
 
             <FormField label="Senha">
-              <input
-                type="password"
-                className={inputBase}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <PasswordInput onChange={(e) => setPassword(e.target.value)} value={password} />
             </FormField>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
