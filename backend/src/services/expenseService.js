@@ -10,20 +10,20 @@ const getExpenseService = async ({ user, dailyReportID }) => {
             throw new Error('Usuário não encontrado.')
         }
     
-    
 
     const userId = userExists._id
-    const dailyReport = await DailyReport.findOne({userId,
+    const dailyReport = await DailyReport.findOne({
+        userId,
         _id: dailyReportID
     })
+    if(!dailyReport) {
+        throw new Error("Caixa não existe!")
+    }
 
     const expense = await Expense.find({
             userId,
             dailyReportId: dailyReport._id
         })
-        if(!expense) {
-            throw new Error('Despesas não registrada!')
-        }
     
         return expense
 }

@@ -21,7 +21,6 @@ const getProductService = async ({ productID, user } ) => {
     }
 
     return product
-
 }
 
 const getAllProductService = async ({ user }) => {
@@ -46,10 +45,15 @@ const createProductService = async({user, ...product})  => {
     const { name, purchasePrice, salePrice } = product
     const firebaseUid = user.uid
 
-    const userId = (await User.findOne({ firebaseUid }))._id 
+    const userExists = await User.findOne({ firebaseUid })
+    if (!userExists) {
+        throw new Error('Usuário não encontrado.')
+    }
+
+    const userId = userExists._id 
 
     if(salePrice < purchasePrice) {
-        throw new Error('Valor de venda deve ser maior que o de compra.')
+        throw new Error('Valor de venda deve ser maior ou igual ao de compra.')
     }
 
     const existingProduct = await Product.findOne({
@@ -82,8 +86,7 @@ const updateProductService = async({productID, user, ...product}) => {
 
     const userId = userExists._id
 
-    if (salePrice <= purchasePrice) {
-        console.log('a')
+    if (salePrice < purchasePrice) {
         throw new Error('Valor de venda deve ser maior ou igual ao de compra.')
     }
     
@@ -129,7 +132,7 @@ const deleteProductService = async({productID, user}) =>  {
      })
 
     if(!productExists){
-        throw new Error('Produto inexistente')
+        throw new Error('Produto inexistente!')
     }
 
     const product = await Product.findOneAndDelete({ 

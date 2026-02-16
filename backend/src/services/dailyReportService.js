@@ -23,7 +23,6 @@ const getCashRegisterService = async ({ dailyreportID, user } ) => {
     }
 
     return dailyReport
-
 }
 
 const getAllCashRegisterService = async ({ user }) => {
@@ -48,8 +47,12 @@ const createCashRegisterService = async ({ user, ...data }) => {
     const { date, initialCash, finalCash, expensesData = [] } = data
 
     const firebaseUid = user.uid
-    
-    const userId = (await User.findOne({ firebaseUid }))._id 
+
+    const userExists = await User.findOne({ firebaseUid })
+    if (!userExists) {
+        throw new Error('Usuário não encontrado.')
+    }
+    const userId = userExists._id
 
     // Validações básicas
 
@@ -76,7 +79,6 @@ const createCashRegisterService = async ({ user, ...data }) => {
     });
 
     if (existingReport) {
-
         throw new Error('Já existe um caixa registrado para este dia')
     }
 
@@ -125,7 +127,11 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
 
     const firebaseUid = user.uid
 
-    const userId = (await User.findOne({ firebaseUid }))._id
+    const userExists = await User.findOne({ firebaseUid })
+    if (!userExists) {
+        throw new Error('Usuário não encontrado.')
+    }
+    const userId = userExists._id
     
     // Validações básicas
 
@@ -162,7 +168,7 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
         0
     )
 
-    const grossProfit = finalCash - initialCash
+    const grossProfit = (finalCash - initialCash) + totalExpense
 
     if (grossProfit < 0 && expensesData.length === 0) {
         throw new Error('Lucro negativo sem despesas registradas')
@@ -207,7 +213,11 @@ const updateCashRegisterService = async ({ dailyReportID, user, ...data }) => {
 const deleteCashRegisterService = async({dailyReportID, user}) =>  {
     const firebaseUid = user.uid
 
-    const userId = (await User.findOne({ firebaseUid }))._id
+    const userExists = await User.findOne({ firebaseUid })
+    if (!userExists) {
+        throw new Error('Usuário não encontrado.')
+    }
+    const userId = userExists._id
 
     const dailyReportExists = await DailyReport.findOne({ 
         userId,
