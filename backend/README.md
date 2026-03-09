@@ -1,79 +1,120 @@
-## Controle de Caixa - Backend
+# Backend — Daily Report Flow
 
-Este é o backend para o sistema de controle de caixa, desenvolvido com Node.js e Express. Ele fornece uma API RESTful para gerenciar produtos, vendas e relatórios financeiros.
+API REST para o sistema de controle de caixa. Gerencia autenticação de usuários, produtos, registros diários de caixa e despesas, com regras de negócio aplicadas na camada de serviço.
 
-## Para que serve
-Sistema de controle de caixa diário para pequenos negócios, permitindo registrar produtos, vendas e acompanhar o fluxo financeiro de forma organizada.
+---
 
-### Funcionalidades
-- Gerenciamento de produtos (CRUD).
-- Registro de vendas.
-- Geração de relatórios financeiros.
-- Autenticação e autorização de usuários.
+## 🛠️ Tecnologias
 
-### Tecnologias Utilizadas
-- Node.js
-- Express
-- MongoDB 
-- Mongoose
-- JWT para autenticação
-- Firebase Admin SDK para integração com Firebase Authentication
-- dotenv para gerenciamento de variáveis de ambiente
+- **Node.js** + **Express** — servidor e roteamento
+- **MongoDB** + **Mongoose** — banco de dados e modelagem
+- **Firebase Admin SDK** — verificação de tokens JWT emitidos pelo Firebase Authentication
+- **Zod** — validação de dados de entrada
+- **Jest** — testes unitários dos services
+- **Swagger** — documentação interativa da API (`/api-docs`)
 
-### Estrutura do Projeto
-- `src/controllers`: Orquestradores das requisições HTTP e chamadas aos serviços.
-- `src/models`: Modelos Mongoose para produtos, vendas e usuários.
-- `src/routes`: Definição das rotas da API.
-- `src/middleware`: Middleware para autenticação e tratamento de erros.
-- `src/utils`: Funções utilitárias e helpers.
-- `src/config`: Configurações do banco de dados e outras configurações da aplicação.
-- `src/services`: Serviços para interações com o banco de dados e outras operações e lógica de negócio.
-- `src/database`: Scripts de inicialização e configuração do banco de dados.
-- `src/schemas`: Definições de esquemas para validação de dados.
+---
 
+## 📁 Estrutura
 
-### Como Rodar o Projeto
-1. Clone o repositório:
-   ```bash
-   git clone <repository-url>
-   ```
-2. Navegue até o diretório do backend:
-   ```bash
-    cd controle-de-caixa/backend
-    ```
-3. Instale as dependências:
-    ```bash
-    npm install
-    ```
-4. Configure as variáveis de ambiente criando um arquivo `.env` baseado no arquivo `.env.example`.
+```
+src/
+├── controllers/   # Recebem a requisição HTTP e delegam para os services
+├── services/      # Lógica de negócio e interação com o banco de dados
+│   └── tests/     # Testes unitários com Jest
+├── models/        # Schemas Mongoose (User, Product, DailyReport, Expense)
+├── routes/        # Definição das rotas da API
+├── middlewares/   # Autenticação (Firebase) e autorização (admin)
+├── schemas/       # Validação de entrada com Zod
+├── helpers/       # Funções utilitárias (ex: normalização de datas UTC)
+├── database/      # Conexão com o MongoDB
+└── config/        # Configuração do Swagger
+```
 
-5. Inicie o servidor:
-    ```bash
-    npm run dev
-    ```
+---
 
-6. O servidor estará rodando em `http://localhost:3000`.
+## ⚙️ Configuração
 
-7. Configure o Firebase Admin SDK seguindo as instruções na [documentação oficial](https://firebase.google.com/docs/admin/setup).
-8. Gere a private_key.json e coloque na raiz do projeto backend(lembre-se de não commitar o arquivo private_key.json no repositório).
-9. Adicione as variáveis de ambiente do Firebase no arquivo .env conforme o exemplo fornecido.
+### 1. Clone e instale
 
-### API Endpoints
-- `POST /products`: Criar um novo produto.
-- `GET /products`: Listar todos os produtos.
-- `PATCH /products/:id`: Atualizar um produto.
-- `DELETE /products/:id`: Deletar um produto.
-- `POST /daily-report`: Registrar um novo caixa diário.
-- `GET /daily-report`: Obter os caixas diários registrados.
-- `GET /daily-report/:id`: Obter detalhes de um caixa diário específico.
-- `PATCH /daily-report/:id`: Atualizar um caixa diário.
-- `DELETE /daily-report/:id`: Deletar um caixa diário.
-- `GET /daily-report/expense/:id`: Obter despesas de um caixa diário específico.
+```bash
+cd controle-de-caixa/backend
+npm install
+```
 
+### 2. Variáveis de ambiente
 
-### Contribuição
+Crie o arquivo `.env` baseado no `.env.example`:
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests para melhorias e correções.
+```bash
+cp .env.example .env
+```
 
-### Licença
-Este projeto está licenciado sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+| Variável | Descrição |
+|---|---|
+| `PORT` | Porta do servidor (padrão: `3000`) |
+| `MONGO_URI` | URI de conexão do MongoDB Atlas |
+| `FIREBASE_PROJECT_ID` | ID do projeto no Firebase Console |
+| *(demais)* | Credenciais do Firebase (ver `.env.example`) |
+
+### 3. Firebase Admin SDK
+
+O backend usa o Firebase Admin SDK para verificar os tokens de autenticação enviados pelo frontend.
+
+1. No [Firebase Console](https://console.firebase.google.com/), acesse **Configurações do projeto → Contas de serviço**
+2. Clique em **Gerar nova chave privada** — isso baixa um arquivo `.json`
+3. Renomeie o arquivo para `private_key.json` e coloque na raiz do diretório `backend/`
+4. ⚠️ **Nunca commite esse arquivo** — ele já está no `.gitignore`
+
+### 4. Inicie o servidor
+
+```bash
+npm run dev
+# Servidor em http://localhost:3000
+# Documentação Swagger em http://localhost:3000/api-docs
+```
+
+---
+
+## 🧪 Testes
+
+```bash
+npm test
+```
+
+Os testes cobrem os services de `DailyReport`, `Expense` e `Product` com mocks do Mongoose via Jest.
+
+---
+
+## 🔌 Endpoints
+
+Todos os endpoints exigem autenticação via `Bearer token` no header `Authorization`.
+
+### Produtos
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/products` | Listar todos os produtos |
+| `GET` | `/products/:id` | Buscar produto por ID |
+| `POST` | `/products` | Criar produto |
+| `PATCH` | `/products/:id` | Atualizar produto |
+| `DELETE` | `/products/:id` | Deletar produto |
+
+### Caixa Diário
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/daily-report` | Listar todos os caixas |
+| `GET` | `/daily-report/:id` | Buscar caixa por ID |
+| `POST` | `/daily-report` | Registrar caixa do dia |
+| `PATCH` | `/daily-report/:id` | Atualizar caixa |
+| `DELETE` | `/daily-report/:id` | Deletar caixa |
+| `GET` | `/expense/:id` | Listar despesas de um caixa |
+
+> A documentação completa e interativa está disponível em `/api-docs` com o servidor rodando.
+
+---
+
+## 📝 Licença
+
+MIT — veja o arquivo [LICENSE](../LICENSE).

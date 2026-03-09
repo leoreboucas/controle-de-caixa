@@ -1,87 +1,101 @@
-## Controle de Caixa - Frontend
+# Frontend — Daily Report Flow
 
-Este repositório contém o **frontend** do sistema de Controle de Caixa, desenvolvido com **React**.  
-A aplicação consome uma API backend para gerenciar **caixa diário, produtos, despesas e relatórios financeiros**, com autenticação via Firebase.
+Interface web do sistema de controle de caixa. Consome a API do backend para gerenciar produtos, registros de caixa e relatórios financeiros mensais.
 
-### Funcionalidades
-- Autenticação de usuários utilizando **Firebase Authentication**
-- Cadastro e visualização de produtos
-- Registro de caixa diário (caixa inicial, caixa final e despesas)
-- Listagem de caixas organizados por data
-- Navegação entre páginas com React Router
-- Interface responsiva e consistente com Tailwind CSS
+**🔗 [Acesse em produção](https://dailyreportflow.netlify.app)**
 
-### Tecnologias Utilizadas
-- React
-- Vite
-- Firebase Authentication
-- React Router DOM
-- Tailwind CSS
-- React Firebase Hooks
-- Axios
+---
 
-### Estrutura do Projeto
-- `src/components`: Componentes reutilizáveis da aplicação, como Header, NavBar, InfoItem, ProductInfo e ResumeItem.
-- `src/services`: Configurações e serviços, incluindo a configuração do Firebase.
-- `src/pages`: Páginas principais da aplicação, como Dashboard, Products, Sales e Reports.
-- `src/routes`: Configuração das rotas da aplicação utilizando React Router.
-- `src/hooks`: Hooks personalizados para funcionalidades específicas, como autenticação.
-- `src/utils`: Funções utilitárias e helpers.
+## 🛠️ Tecnologias
 
-### Como Rodar o Projeto
-1. Clone o repositório:
-   ```bash
-   git clone <repository-url>
-    ```
-2. Navegue até o diretório do projeto:
-    ```bash
-    cd controle-de-caixa/frontend
-     ```
-3. Instale as dependências:
-    ```bash
-    npm install
-    ```
-4. Inicie o servidor de desenvolvimento:
-    ```bash
-    npm run dev
-    ```
-5. Acesse a aplicação em `http://localhost:5173/`.
+- **React** + **Vite** — interface e build
+- **Tailwind CSS** — estilização com utilitários
+- **React Router DOM** — navegação e rotas protegidas
+- **Firebase Authentication** — autenticação com e-mail/senha e Google
+- **Axios** — chamadas à API do backend
+- **React Firebase Hooks** — gerenciamento de estado de autenticação
 
-### Configuração do Firebase
+---
 
-Crie um projeto no [Firebase Console](https://console.firebase.google.com/) e ative o **Firebase Authentication** com o provedor de e-mail/senha e provedor Google.
+## 📁 Estrutura
 
-Crie um arquivo src/services/firebase.js com a seguinte configuração, substituindo os valores pelas credenciais do seu projeto Firebase:
-
-```javascript
-    import { initializeApp } from "firebase/app";
-    import { getAuth } from "firebase/auth";
-    const firebaseConfig =
-    {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_AUTH_DOMAIN",
-    projectId: "SEU_PROJECT_ID",
-    storageBucket: "SEU_STORAGE_BUCKET",
-    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-    appId: "SEU_APP_ID",
-    measurementId: "SEU_MEASUREMENT_ID"
-    };
-    const app = initializeApp(firebaseConfig);
-    export const auth = getAuth(app);
 ```
-O Firebase é utilizado exclusivamente para autenticação, enquanto os dados da aplicação são gerenciados pelo backend.
+src/
+├── components/   # Componentes reutilizáveis (Header, NavBar, FormField, DashboardCard...)
+├── pages/        # Páginas da aplicação (Dashboard, Products, DailyReport, Login, Signin...)
+├── routes/       # PrivateRoute e NotFoundRedirect
+├── services/     # Funções de chamada à API (products, dailyreport, expenses, firebase)
+├── contexts/     # AuthContext com estado global de autenticação
+├── hooks/        # useAuth — hook de autenticação
+├── utils/        # inputBase (estilo padrão de inputs) e utilitários de filtro por mês
+└── styles/       # CSS global com Tailwind
+```
 
-### Integração com o Backend
-Este frontend consome uma API backend para gerenciar os dados do sistema de controle de caixa.
-- Caixa diário
-- Produtos
-- Despesas
-- Relatórios financeiros
+---
 
-Certifique-se de que o backend esteja rodando e acessível para que o frontend funcione corretamente.
-### Contribuição
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull
-requests para melhorias e correções.
+## ⚙️ Configuração
 
-### Licença
-Este projeto está licenciado sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+### 1. Clone e instale
+
+```bash
+cd controle-de-caixa/frontend
+npm install
+```
+
+### 2. Configure o Firebase
+
+1. Crie um projeto no [Firebase Console](https://console.firebase.google.com/)
+2. Ative o **Authentication** com os provedores **E-mail/Senha** e **Google**
+3. Copie as credenciais do projeto em **Configurações → Configuração do SDK**
+4. Atualize o arquivo `src/services/firebase.js` com suas credenciais:
+
+```js
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID",
+};
+```
+
+> O Firebase é usado **apenas para autenticação**. Todos os dados da aplicação são gerenciados pelo backend.
+
+### 3. Configure a URL da API
+
+Por padrão o frontend aponta para `http://localhost:3000`. Para apontar para outro ambiente, crie um arquivo `.env` na raiz do frontend:
+
+```env
+VITE_API_URL=https://sua-api.com
+```
+
+### 4. Inicie o servidor de desenvolvimento
+
+```bash
+npm run dev
+# Aplicação em http://localhost:5173
+```
+
+---
+
+## 📄 Páginas
+
+| Rota | Descrição | Acesso |
+|---|---|---|
+| `/` | Landing page | Público |
+| `/login` | Login com e-mail ou Google | Público |
+| `/signin` | Criação de conta | Público |
+| `/dashboard` | Resumo financeiro mensal | Privado |
+| `/products` | Lista de produtos | Privado |
+| `/products/new` | Cadastrar produto | Privado |
+| `/products/edit/:id` | Editar produto | Privado |
+| `/daily-report` | Histórico de caixas | Privado |
+| `/daily-report/new` | Registrar caixa do dia | Privado |
+| `/daily-report/edit/:id` | Editar caixa | Privado |
+
+---
+
+## 📝 Licença
+
+MIT — veja o arquivo [LICENSE](../LICENSE).

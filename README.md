@@ -1,45 +1,97 @@
-## Controle de Caixa - Aplicação 
+# 📊 Daily Report Flow — Sistema de Controle de Caixa
 
-Este repositório contém o sistema de controle de caixa dividido em duas partes: o frontend desenvolvido com React e o backend desenvolvido com Node.js e Express. O sistema permite gerenciar produtos, vendas e gerar relatórios financeiros.
+Aplicação web full stack para gestão financeira de pequenos negócios. Permite registrar o caixa diário, acompanhar despesas, gerenciar produtos e visualizar relatórios mensais consolidados.
 
-## Estrutura do Repositório
-- `backend/`: Contém o código-fonte do backend desenvolvido com Node.js e Express
-- `frontend/`: Contém o código-fonte do frontend desenvolvido com React.
+**🔗 [Acesse a aplicação](https://dailyreportflow.netlify.app)**
 
-## Instruções para Rodar o Projeto
+---
+
+## ✨ Funcionalidades
+
+- **Autenticação** com e-mail/senha e login com Google via Firebase
+- **Registro de caixa diário** com caixa inicial, caixa final e despesas vinculadas
+- **Relatório mensal** com receita bruta, despesas totais e receita líquida
+- **Gestão de produtos** com preço de custo, preço de venda e margem de lucro
+- **Filtro por mês** nos relatórios e histórico de caixas
+- **Rotas protegidas** — acesso restrito a usuários autenticados
+- **Interface responsiva** para desktop e mobile
+
+---
+
+## 🖥️ Preview
+
+> Dashboard com resumo financeiro mensal
+
+![Dashboard](https://dailyreportflow.netlify.app/favicon.jpg)
+
+---
+
+## 🗂️ Estrutura do Repositório
+
+```
+controle-de-caixa/
+├── backend/    # API REST com Node.js, Express e MongoDB
+└── frontend/   # Interface React com Tailwind CSS
+```
+
+---
+
+## 🚀 Rodando o projeto localmente
+
+### Pré-requisitos
+
+- Node.js 18+
+- Conta no [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (ou instância local)
+- Projeto no [Firebase Console](https://console.firebase.google.com/) com Authentication ativado
+
 ### Backend
-1. Navegue até o diretório do backend:
-      ```bash
-      cd controle-de-caixa/backend
-      ```
-2. Instale as dependências:
-      ```bash
-      npm install
-      ```
-3. Inicie o servidor:
-      ```bash
-      npm run dev
-      ```
-4. O servidor estará rodando em `http://localhost:3000`.
 
-### Frontend   
-1. Navegue até o diretório do frontend:
-      ```bash
-      cd controle-de-caixa/frontend
-      ```
-2. Instale as dependências:
-      ```bash
-      npm install
-      ```
+```bash
+cd controle-de-caixa/backend
+npm install
+```
 
-3. Inicie o servidor de desenvolvimento:
-      ```bash
-      npm run dev
-      ```
-4. Acesse a aplicação em `http://localhost:5173/`.
+Crie o arquivo `.env` com base no `.env.example`:
 
-## Documentação do Frontend
-Para mais detalhes sobre o frontend, consulte o arquivo [frontend/README.md](frontend/README.md).
+```bash
+cp .env.example .env
+```
 
-## Documentação do Backend
-Para mais detalhes sobre o backend, consulte o arquivo [backend/README.md](backend/README.md).
+Preencha as variáveis com suas credenciais (ver [backend/README.md](backend/README.md)).
+
+```bash
+npm run dev
+# Servidor rodando em http://localhost:3000
+```
+
+### Frontend
+
+```bash
+cd controle-de-caixa/frontend
+npm install
+npm run dev
+# Aplicação em http://localhost:5173
+```
+
+---
+
+## 🛠️ Stack
+
+| Camada | Tecnologias |
+|---|---|
+| Backend | Node.js, Express, MongoDB, Mongoose, Firebase Admin SDK, Zod, Jest, Swagger |
+| Frontend | React, Vite, Tailwind CSS, Firebase Auth, React Router, Axios |
+| Infra | Netlify (frontend), MongoDB Atlas |
+
+---
+
+## 📄 Documentação detalhada
+
+- [Backend — README](backend/README.md)
+- [Frontend — README](frontend/README.md)
+
+---
+
+## 📝 Licença
+
+Distribuído sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.

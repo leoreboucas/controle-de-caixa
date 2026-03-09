@@ -84,10 +84,7 @@ const createCashRegisterService = async ({ user, ...data }) => {
 
     // Regra: cálculo
 
-    const totalExpense = expensesData.reduce(
-        (sum, e) => sum + e.amount,
-        0
-    )
+    const totalExpense = expensesData.reduce((sum, e) => sum + (e.amount * e.unitPrice), 0)
 
     const grossProfit = (finalCash - initialCash) + totalExpense
 

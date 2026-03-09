@@ -6,7 +6,7 @@ const Router = express.Router()
 
 /**
  * @swagger
- * /expense:
+ * /expense/:id:
  *   get:
  *     summary: Listar todos as despesas do usuário
  *     tags: [Despesas]
